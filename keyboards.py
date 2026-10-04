@@ -15,7 +15,7 @@ def start_menu():
     builder = InlineKeyboardBuilder()
 
     builder.button(text="Дневная норма", callback_data="DailyAllowance")
-    builder.button(text="Добавить еду", callback_data="builder")
+    builder.button(text="Добавить еду", callback_data="AddFood")
     builder.button(text="Осталось", callback_data="LeftCalories")
     builder.button(text="Удалить еду", callback_data="DeleteFood")
 
