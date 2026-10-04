@@ -61,8 +61,9 @@ async def custom_food_weight_handler(message: Message, state: FSMContext) -> Non
 
     data = await state.get_data()
 
-    await message.answer(f"Калории на {value}г: {data["calories"] * value / 100}\n"
-                         f"Белки на {value}г: {data["protein"] * value / 100}\n"
-                         f"Жиры на {value}г: {data["fat"] * value / 100}\n"
-                         f"Углеводы на {value}г: {data["carbs"] * value / 100}")
+    await message.answer(f"Название блюда: {data['food_name']}\n\n"
+                         f"Калории на {value}г: {data['calories'] * value / 100}\n"
+                         f"Белки на {value}г: {data['protein'] * value / 100}\n"
+                         f"Жиры на {value}г: {data['fat'] * value / 100}\n"
+                         f"Углеводы на {value}г: {data['carbs'] * value / 100}")
     await state.clear()
