@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher
 
 from config import TOKEN
 
-from handlers.commands import router as commands_router, router
+from handlers.commands import router as commands_router
 from handlers.custom_food import router as custom_food_router
 from handlers.menus import router as menus_router
 from handlers.fallback import router as fallback_router

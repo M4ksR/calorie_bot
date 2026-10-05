@@ -50,7 +50,7 @@ async def custom_food_kbju_handler(message: Message, state: FSMContext) -> None:
 async def custom_food_weight_handler(message: Message, state: FSMContext) -> None:
     value = message.text.strip()
     try:
-        value = float(value)
+        value = float(value.replace(',','.'))
     except ValueError:
         await message.answer("Неверный формат")
         return
