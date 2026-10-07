@@ -17,6 +17,14 @@ async def init_database():
             )
             """
         )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                user_id INTEGER PRIMARY KEY,
+                daily_calories INTEGER NOT NULL
+            )
+            """
+        )
         await db.commit()
 
 async def add_food_entry(user_id,
