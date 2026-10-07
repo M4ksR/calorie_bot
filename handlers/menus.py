@@ -1,6 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 
+from aiogram.fsm.context import FSMContext
 from keyboards import add_food_menu, start_menu
 
 router = Router()
@@ -40,3 +41,15 @@ async def back_callback_handler(callback: CallbackQuery) -> None:
     await callback.answer()
     await callback.message.edit_text("Calorie Counter", reply_markup=start_menu())
 
+@router.callback_query(F.data == "confirm_food")
+async def confirm_food_callback_handler(callback: CallbackQuery, state: FSMContext) -> None:
+    await callback.answer()
+    data = await state.get_data()
+    await callback.message.answer(f"Блюдо {data['food_name']} добавлено")
+    await state.clear()
+
+@router.callback_query(F.data == "cansel_food")
+async def confirm_food_callback_handler(callback: CallbackQuery, state: FSMContext) -> None:
+    await callback.answer()
+    await state.clear()
+    await callback.message.answer("Добавление отменено", reply_markup=add_food_menu())
