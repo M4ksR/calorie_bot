@@ -2,6 +2,7 @@ import asyncio
 import logging
 import sys
 
+from database import init_database
 from aiogram import Bot, Dispatcher
 
 from config import TOKEN
@@ -20,6 +21,7 @@ async def main() -> None:
     dp.include_router(menus_router)
     dp.include_router(fallback_router)
 
+    await init_database()
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
