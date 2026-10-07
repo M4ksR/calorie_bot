@@ -1,14 +1,14 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 
-from keyboards import add_food_menu, start_menu
+from keyboards import calculation_of_daily_allowance, add_food_menu, start_menu
 
 router = Router()
 
 @router.callback_query(F.data == "DailyAllowance")
 async def DailyAllowance_callback_handler(callback: CallbackQuery) -> None:
     await callback.answer()
-    await callback.message.answer("Your daily allowance is: {value}")
+    await callback.message.edit_text("Расчет дневной нормы калорий", reply_markup=calculation_of_daily_allowance())
 
 @router.callback_query(F.data == "AddFood")
 async def AddFood_callback_handler(callback: CallbackQuery) -> None:
