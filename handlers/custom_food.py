@@ -3,7 +3,7 @@ from aiogram.types import Message, CallbackQuery
 
 from aiogram.fsm.context import FSMContext
 from states import CustomFood
-from keyboards import confirm_custom_food
+from keyboards import confirm_custom_food, add_food_menu, start_menu
 
 router = Router()
 
@@ -69,3 +69,18 @@ async def custom_food_weight_handler(message: Message, state: FSMContext) -> Non
                          f"Жиры на {value}г: {data['fat'] * value / 100}\n"
                          f"Углеводы на {value}г: {data['carbs'] * value / 100}",
                          reply_markup=confirm_custom_food())
+
+@router.callback_query(F.data == "confirm_food")
+async def confirm_food_callback_handler(callback: CallbackQuery, state: FSMContext) -> None:
+    await callback.answer()
+    data = await state.get_data()
+    await callback.message.edit_text(f"Блюдо {data['food_name']} добавлено\n\n"
+                                     f"Calorie Counter",
+                                     reply_markup=start_menu())
+    await state.clear()
+
+@router.callback_query(F.data == "cancel_food")
+async def cancel_food_callback_handler(callback: CallbackQuery, state: FSMContext) -> None:
+    await callback.answer()
+    await callback.message.edit_text("Добавление отменено", reply_markup=add_food_menu())
+    await state.clear()
