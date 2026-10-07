@@ -59,3 +59,35 @@ async def add_food_entry(user_id,
             )
         )
         await db.commit()
+
+async def set_daily_calories(user_id, daily_calories):
+    async with aiosqlite.connect("calorie_bot.db") as db:
+        await db.execute(
+            """
+            INSERT INTO users (user_id, daily_calories) 
+            VALUES (?, ?)
+                
+            ON CONFLICT (user_id)
+            DO UPDATE SET daily_calories = excluded.daily_calories
+            """,
+            (
+                user_id,
+                daily_calories
+            )
+        )
+        await db.commit()
+
+async def get_daily_calories(user_id):
+    async with aiosqlite.connect("calorie_bot.db") as db:
+        cursor = await db.execute(
+            """
+            SELECT daily_calories
+            FROM users
+            WHERE user_id = ?
+            """,
+            (
+                user_id,
+            )
+        )
+        row = await cursor.fetchone()
+        return None if (row is None) else row[0]

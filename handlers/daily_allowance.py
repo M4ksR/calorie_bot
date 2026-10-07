@@ -3,9 +3,19 @@ from aiogram.types import Message, CallbackQuery
 
 from aiogram.fsm.context import FSMContext
 from states import DailyAllowance
-from keyboards import purpose, activity, start_menu, gender
+from keyboards import calculation_of_daily_allowance, purpose, activity, start_menu, gender
+
+from database import get_daily_calories, set_daily_calories
 
 router = Router()
+
+@router.callback_query(F.data == "Find_out_daily")
+async def Find_Out_handler(callback: CallbackQuery) -> None:
+    await callback.answer()
+    daily_calories = await get_daily_calories(callback.from_user.id)
+    if daily_calories is None: await callback.message.edit_text("Сначала рассчитайте свою норму",
+                                                                reply_markup=calculation_of_daily_allowance())
+    else: await callback.message.edit_text(f"Ваша норма: {daily_calories}")
 
 @router.callback_query(F.data == "Calculate_daily")
 async def Calculate_daily_handler(callback: CallbackQuery, state: FSMContext) -> None:
@@ -101,6 +111,7 @@ async def DailyAllowance_purpose_handler(callback: CallbackQuery, state: FSMCont
     scale *= (100 + coef) / 100
 
     await callback.message.edit_text(f"Ваша дневная норма: {scale}", reply_markup=start_menu())
+    await set_daily_calories(callback.from_user.id, scale)
     await state.clear()
 
 @router.callback_query(F.data == "Back_daily")
