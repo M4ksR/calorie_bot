@@ -4,7 +4,7 @@ def confirm_custom_food():
     builder = InlineKeyboardBuilder()
 
     builder.button(text="Добавить", callback_data="confirm_food")
-    builder.button(text="Отменить", callback_data="cansel_food")
+    builder.button(text="Отменить", callback_data="cancel_food")
 
     builder.adjust(2)
     return builder.as_markup()

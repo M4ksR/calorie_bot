@@ -48,7 +48,7 @@ async def confirm_food_callback_handler(callback: CallbackQuery, state: FSMConte
     await callback.message.answer(f"Блюдо {data['food_name']} добавлено")
     await state.clear()
 
-@router.callback_query(F.data == "cansel_food")
+@router.callback_query(F.data == "cancel_food")
 async def confirm_food_callback_handler(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
     await state.clear()
