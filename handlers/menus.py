@@ -49,7 +49,7 @@ async def confirm_food_callback_handler(callback: CallbackQuery, state: FSMConte
     await state.clear()
 
 @router.callback_query(F.data == "cancel_food")
-async def confirm_food_callback_handler(callback: CallbackQuery, state: FSMContext) -> None:
+async def cancel_food_callback_handler(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
     await state.clear()
     await callback.message.answer("Добавление отменено", reply_markup=add_food_menu())
