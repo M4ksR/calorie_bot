@@ -12,3 +12,7 @@ class DailyAllowance(StatesGroup):
     waiting_for_age = State()
     waiting_for_activity = State()
     waiting_for_purpose = State()
+
+class SavedFood(StatesGroup):
+    waiting_for_weight = State()
+    waiting_for_confirm = State()

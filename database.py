@@ -59,7 +59,7 @@ async def add_food_entry(user_id,
                 fat,
                 carbs
             )
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 user_id,
@@ -160,7 +160,7 @@ async def save_food(user_id, food_name, calories, protein, fat, carbs):
                                     protein,
                                     fat,
                                     carbs)
-            Values (?, ?, ?, ?, ?, ?, ?)
+            Values (?, ?, ?, ?, ?, ?)
             """,
             (
                 user_id,
@@ -172,3 +172,32 @@ async def save_food(user_id, food_name, calories, protein, fat, carbs):
             )
         )
         await db.commit()
+
+async def get_saved_food(user_id):
+    async with aiosqlite.connect("calorie_bot.db") as db:
+        cursor = await db.execute(
+            """
+            SELECT id, food_name, calories, protein, fat, carbs
+            FROM saved_food
+            WHERE user_id = ?
+            """,
+            (
+                user_id,
+            )
+        )
+        return await cursor.fetchall()
+
+async def get_saved_food_by_id(food_id, user_id):
+    async with aiosqlite.connect("calorie_bot.db") as db:
+        cursor = await db.execute(
+            """
+            SELECT food_name, calories, protein, fat, carbs FROM saved_food
+            WHERE id = ?
+            AND user_id = ?
+            """,
+            (
+                food_id,
+                user_id
+            )
+        )
+        return await cursor.fetchone()
