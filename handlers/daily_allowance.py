@@ -82,10 +82,10 @@ async def DailyAllowance_age_handler(message: Message, state: FSMContext) -> Non
 async def DailyAllowance_activity_handler(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
 
-    if (F.data == "Sit"): coef = 1.2
-    elif (F.data == "Lite"): coef = 1.42
-    elif (F.data == "Medium"): coef = 1.55
-    elif (F.data == "Hard"): coef = 1.8
+    if callback.data == "Sit": coef = 1.2
+    elif callback.data == "Lite": coef = 1.42
+    elif callback.data == "Medium": coef = 1.55
+    elif callback.data == "Hard": coef = 1.8
     else: await callback.answer("Неверный формат") ; return
 
     await state.update_data(activity=coef)
@@ -96,9 +96,9 @@ async def DailyAllowance_activity_handler(callback: CallbackQuery, state: FSMCon
 async def DailyAllowance_purpose_handler(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
 
-    if (F.data == "WeightLoss"): coef = -15
-    elif (F.data == "WeightMaintenance"): coef = 0
-    elif (F.data == "WeightGain"): coef = 12
+    if callback.data == "WeightLoss": coef = -15
+    elif callback.data == "WeightMaintenance": coef = 0
+    elif callback.data == "WeightGain": coef = 12
     else: await callback.answer("Неверный формат") ; return
 
     data = await state.get_data()
