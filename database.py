@@ -125,12 +125,14 @@ async def get_today_food_entries(user_id):
 
 async def delete_food_entry(entry_id, user_id):
     async with aiosqlite.connect("calorie_bot.db") as db:
-        """
-        DELETE FROM food_entries
-        WHERE id = ? AND user_id = ?
-        """,
-        (
-            entry_id,
-            user_id
+        await db.execute(
+            """
+            DELETE FROM food_entries
+            WHERE id = ? AND user_id = ?
+            """,
+            (
+                entry_id,
+                user_id
+            )
         )
         await db.commit()
