@@ -43,10 +43,11 @@ def calculation_of_daily_allowance():
 def confirm_custom_food():
     builder = InlineKeyboardBuilder()
 
-    builder.button(text="Добавить", callback_data="confirm_food")
-    builder.button(text="Отменить", callback_data="cancel_food")
+    builder.button(text="✅Добавить", callback_data="confirm_food")
+    builder.button(text="⭐Добавить и Сохранить", callback_data="confirm_and_save_food")
+    builder.button(text="❌Отменить", callback_data="cancel_food")
 
-    builder.adjust(2)
+    builder.adjust(1)
     return builder.as_markup()
 
 def add_food_menu():

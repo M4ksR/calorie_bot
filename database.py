@@ -25,6 +25,19 @@ async def init_database():
             )
             """
         )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS saved_food (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                food_name TEXT NOT NULL,
+                calories REAL NOT NULL,
+                protein REAL NOT NULL,
+                fat REAL NOT NULL,
+                carbs REAL NOT NULL
+            )
+            """
+        )
         await db.commit()
 
 async def add_food_entry(user_id,
@@ -46,7 +59,7 @@ async def add_food_entry(user_id,
                 fat,
                 carbs
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
             (
                 user_id,
@@ -133,6 +146,29 @@ async def delete_food_entry(entry_id, user_id):
             (
                 entry_id,
                 user_id
+            )
+        )
+        await db.commit()
+
+async def save_food(user_id, food_name, calories, protein, fat, carbs):
+    async with aiosqlite.connect("calorie_bot.db") as db:
+        await db.execute(
+            """
+            INSERT INTO saved_food (user_id,
+                                    food_name,
+                                    calories,
+                                    protein,
+                                    fat,
+                                    carbs)
+            Values (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                user_id,
+                food_name,
+                calories,
+                protein,
+                fat,
+                carbs
             )
         )
         await db.commit()
