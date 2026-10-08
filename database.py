@@ -94,7 +94,7 @@ async def get_daily_calories(user_id):
 
 async def get_today_calories(user_id):
     async with aiosqlite.connect("calorie_bot.db") as db:
-        sm = await db.execute(
+        cursor = await db.execute(
             """
             SELECT COALESCE(SUM(calories), 0)
             FROM food_entries
@@ -105,5 +105,32 @@ async def get_today_calories(user_id):
             user_id,
             )
         )
-        row = await sm.fetchone()
+        row = await cursor.fetchone()
         return row[0]
+
+async def get_today_food_entries(user_id):
+    async with aiosqlite.connect("calorie_bot.db") as db:
+        cursor = await db.execute(
+            """
+            SELECT id, food_name, weight, calories
+            FROM food_entries
+            WHERE user_id = ?
+            AND DATE(created_at) = DATE('now')
+            """,
+            (
+                user_id,
+            )
+        )
+        return await cursor.fetchall()
+
+async def delete_food_entry(entry_id, user_id):
+    async with aiosqlite.connect("calorie_bot.db") as db:
+        """
+        DELETE FROM food_entries
+        WHERE id = ? AND user_id = ?
+        """,
+        (
+            entry_id,
+            user_id
+        )
+        await db.commit()

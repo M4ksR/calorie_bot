@@ -35,11 +35,6 @@ async def LeftCalories_callback_handler(callback: CallbackQuery) -> None:
 
     await callback.message.edit_text(f"На сегодня осталось: {daily - eaten}")
 
-@router.callback_query(F.data == "DeleteFood")
-async def DeleteFood_callback_handler(callback: CallbackQuery) -> None:
-    await callback.answer()
-    await callback.message.answer("This function is under development")
-
 @router.callback_query(F.data == "save_food")
 async def save_food_callback_handler(callback: CallbackQuery) -> None:
     await callback.answer()
