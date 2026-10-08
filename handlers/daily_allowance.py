@@ -115,6 +115,6 @@ async def DailyAllowance_purpose_handler(callback: CallbackQuery, state: FSMCont
     await state.clear()
 
 @router.callback_query(F.data == "Back_daily")
-async def Back_daily_callback_handler(callback: CallbackQuery, state: FSMContext) -> None:
+async def Back_daily_callback_handler(callback: CallbackQuery) -> None:
     await callback.answer()
     await callback.message.edit_text("Calorie counter", reply_markup=start_menu())
