@@ -12,6 +12,7 @@ from handlers.custom_food import router as custom_food_router
 from handlers.delete_food import router as delete_food_router
 from handlers.food_history import router as food_history_router
 from handlers.daily_allowance import router as daily_allowance_router
+from handlers.saved_food import router as saved_food_router
 from handlers.menus import router as menus_router
 from handlers.fallback import router as fallback_router
 
@@ -24,6 +25,7 @@ async def main() -> None:
     dp.include_router(delete_food_router)
     dp.include_router(food_history_router)
     dp.include_router(daily_allowance_router)
+    dp.include_router(saved_food_router)
     dp.include_router(menus_router)
     dp.include_router(fallback_router)
 

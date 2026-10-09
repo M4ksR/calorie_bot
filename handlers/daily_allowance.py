@@ -9,6 +9,11 @@ from database import get_daily_calories, set_daily_calories
 
 router = Router()
 
+@router.callback_query(F.data == "DailyAllowance")
+async def DailyAllowance_callback_handler(callback: CallbackQuery) -> None:
+    await callback.answer()
+    await callback.message.edit_text("Расчет дневной нормы калорий", reply_markup=calculation_of_daily_allowance())
+
 @router.callback_query(F.data == "Find_out_daily")
 async def Find_Out_handler(callback: CallbackQuery) -> None:
     await callback.answer()

@@ -13,6 +13,17 @@ WEEKDAYS = [
     "Воскресенье"
 ]
 
+def saved_food_menu(data):
+    builder = InlineKeyboardBuilder()
+
+    for food in data:
+        builder.button(text=f"{food[1]} - {food[2]:.0f} ккал", callback_data=f"saved_food_{food[0]}")
+
+    builder.button(text="↩️Назад", callback_data="back")
+
+    builder.adjust(1)
+    return builder.as_markup()
+
 def history(calories):
     builder = InlineKeyboardBuilder()
 
@@ -24,6 +35,16 @@ def history(calories):
         weekday = WEEKDAYS[curr_date.weekday()]
         date_text = curr_date.strftime("%d.%m")
         builder.button(text=f"{weekday} - {date_text} - {calories[offset + 6]:.0f} ккал", callback_data=f"FoodHistory_{offset}")
+
+    builder.button(text="↩️Назад", callback_data="back")
+    builder.adjust(1)
+
+    return builder.as_markup()
+
+def delete_food_menu(data):
+    builder = InlineKeyboardBuilder()
+    for i in data:
+        builder.button(text=f"{i[1]} - {i[2]}г - {i[3]:.0f}ккал", callback_data=f"delete_food_{i[0]}")
 
     builder.button(text="↩️Назад", callback_data="back")
     builder.adjust(1)

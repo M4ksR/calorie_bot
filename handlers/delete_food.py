@@ -1,20 +1,10 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from database import delete_food_entry, get_today_food_entries
+from keyboards import delete_food_menu
 
 router = Router()
-
-def delete_food_menu(data):
-    builder = InlineKeyboardBuilder()
-    for i in data:
-        builder.button(text=f"{i[1]} - {i[2]}г - {i[3]:.0f}ккал", callback_data=f"delete_food_{i[0]}")
-
-    builder.button(text="↩️Назад", callback_data="back")
-    builder.adjust(1)
-
-    return builder.as_markup()
 
 @router.callback_query(F.data == "DeleteFood")
 async def delete_food_callback_handler(callback: CallbackQuery):
