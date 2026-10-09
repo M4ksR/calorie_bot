@@ -44,7 +44,7 @@ async def save_food_callback_handler(callback: CallbackQuery) -> None:
 
     builder = InlineKeyboardBuilder()
     for i in data: builder.button(text=f"{i[1]} - {i[2]} ккал", callback_data=f"saved_food_{i[0]}")
-    builder.button(text="Назад", callback_data="back")
+    builder.button(text="↩️Назад", callback_data="back")
     builder.adjust(1)
 
     await callback.message.edit_text("Выберите сохраненное блюдо", reply_markup=builder.as_markup())

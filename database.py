@@ -105,17 +105,18 @@ async def get_daily_calories(user_id):
         row = await cursor.fetchone()
         return None if (row is None) else row[0]
 
-async def get_today_calories(user_id):
+async def get_today_calories(user_id, current_date="now"):
     async with aiosqlite.connect("calorie_bot.db") as db:
         cursor = await db.execute(
             """
             SELECT COALESCE(SUM(calories), 0)
             FROM food_entries
             WHERE user_id = ?
-            AND DATE(created_at) = DATE('now')
+            AND DATE(created_at) = DATE(?)
             """,
             (
             user_id,
+            current_date
             )
         )
         row = await cursor.fetchone()
@@ -201,3 +202,19 @@ async def get_saved_food_by_id(food_id, user_id):
             )
         )
         return await cursor.fetchone()
+
+async def get_food_entries_by_date(user_id, selected_date):
+    async with aiosqlite.connect("calorie_bot.db") as db:
+        cursor = await db.execute(
+            """
+            SELECT food_name, weight, calories, protein, fat, carbs FROM food_entries
+            WHERE user_id = ?
+            AND DATE(created_at) = ?
+            ORDER BY created_at
+            """,
+            (
+                user_id,
+                selected_date
+            )
+        )
+        return await cursor.fetchall()

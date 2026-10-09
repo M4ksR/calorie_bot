@@ -11,7 +11,7 @@ def delete_food_menu(data):
     for i in data:
         builder.button(text=f"{i[1]} - {i[2]}г - {i[3]:.0f}ккал", callback_data=f"delete_food_{i[0]}")
 
-    builder.button(text="Назад", callback_data="back")
+    builder.button(text="↩️Назад", callback_data="back")
     builder.adjust(1)
 
     return builder.as_markup()
