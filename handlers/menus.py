@@ -24,11 +24,6 @@ async def LeftCalories_callback_handler(callback: CallbackQuery) -> None:
     eaten = await get_today_calories(callback.from_user.id)
     await callback.message.edit_text(f"На сегодня осталось: {daily - eaten}")
 
-@router.callback_query(F.data == "find_food")
-async def find_food_callback_handler(callback: CallbackQuery) -> None:
-    await callback.answer()
-    await callback.message.answer("This function is under development")
-
 @router.callback_query(F.data == "back")
 async def back_callback_handler(callback: CallbackQuery) -> None:
     await callback.answer()

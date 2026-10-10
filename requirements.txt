@@ -2,3 +2,4 @@ aiogram
 python-dotenv
 aiosqlite
 tzdata
+aiohttp

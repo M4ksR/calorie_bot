@@ -13,6 +13,11 @@ WEEKDAYS = [
     "Воскресенье"
 ]
 
+def products_search_menu(products, page):
+    start = page * 5
+    end = page + 5
+    
+
 def saved_food_menu(data):
     builder = InlineKeyboardBuilder()
 

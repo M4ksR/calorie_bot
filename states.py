@@ -16,3 +16,6 @@ class DailyAllowance(StatesGroup):
 class SavedFood(StatesGroup):
     waiting_for_weight = State()
     waiting_for_confirm = State()
+
+class ProductSearch(StatesGroup):
+    waiting_for_product = State()
