@@ -31,7 +31,7 @@ async def main() -> None:
     dp.include_router(fallback_router)
 
     await init_database()
-    await cleanup_scheduler()
+    cleanup = asyncio.create_task(cleanup_scheduler())
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
