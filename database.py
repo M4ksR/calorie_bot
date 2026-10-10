@@ -218,3 +218,16 @@ async def get_food_entries_by_date(user_id, selected_date):
             )
         )
         return await cursor.fetchall()
+
+async def delete_old_food_entries(cutoff_datetime):
+    async with aiosqlite.connect("calorie_bot.db") as db:
+        await db.execute(
+            """
+            DELETE FROM food_entries
+            WHERE created_at < ?
+            """,
+            (
+                cutoff_datetime,
+            )
+        )
+        await db.commit()
