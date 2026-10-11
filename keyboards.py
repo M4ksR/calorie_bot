@@ -1,4 +1,5 @@
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import InlineKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -13,10 +14,22 @@ WEEKDAYS = [
     "Воскресенье"
 ]
 
-def products_search_menu(products, page):
-    start = page * 5
-    end = page + 5
-    
+def confirm_search_food():
+    builder = InlineKeyboardBuilder()
+
+    builder.button(text="✅Добавить", callback_data="confirm_search_food")
+    builder.button(text="❌Отменить", callback_data="cancel_search_food")
+    builder.adjust(2)
+
+    return builder.as_markup()
+
+def products_search_menu(products):
+    builder = InlineKeyboardBuilder()
+    for num,product in enumerate(products,0):
+        builder.button(text=f"{product.get('name')} | {product.get('brand - ', "")}{product.get('calories'):.0f}ккал",
+                       callback_data=f"product_select_{num}")
+    builder.adjust(1)
+    return builder.as_markup()
 
 def saved_food_menu(data):
     builder = InlineKeyboardBuilder()
