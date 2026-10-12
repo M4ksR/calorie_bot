@@ -1,4 +1,3 @@
-from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 
 from datetime import datetime, timedelta
@@ -23,12 +22,25 @@ def confirm_search_food():
 
     return builder.as_markup()
 
-def products_search_menu(products):
+def products_search_menu(products, page=0):
+    start = page * 5
+    end = start + 5
+
     builder = InlineKeyboardBuilder()
-    for num,product in enumerate(products,0):
-        builder.button(text=f"{product.get('name')} | {product.get('brand - ', "")}{product.get('calories'):.0f}ккал",
-                       callback_data=f"product_select_{num}")
+    for i in range(start, end):
+        builder.button(text=f"{products[i].get('name')} | {products[i].get('brand - ', "")}{products[i].get('calories'):.0f}ккал",
+                       callback_data=f"product_select_{i}")
     builder.adjust(1)
+
+    buttons = []
+    if page != 0:
+        buttons.append(InlineKeyboardButton(text="◀️пред",
+                                            callback_data=f"product_page_{page-1}"))
+    if end < len(products):
+        buttons.append(InlineKeyboardButton(text="след▶️",
+                                            callback_data=f"product_page_{page+1}"))
+    builder.row(*buttons)
+
     return builder.as_markup()
 
 def saved_food_menu(data):

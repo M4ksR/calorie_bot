@@ -40,6 +40,25 @@ async def init_database():
         )
         await db.commit()
 
+    async with aiosqlite.connect("data/basic_foods.db") as db:
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS basic_foods (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name_ru TEXT NOT NULL,
+                name_normalized TEXT NOT NULL,
+                name_en TEXT,
+                calories REAL NOT NULL,
+                protein REAL NOT NULL,
+                fat REAL NOT NULL,
+                carbs REAL NOT NULL,
+                usda_id INTEGER, 
+                UNIQUE (name_normalized, usda_id)
+            )
+            """
+        )
+        await db.commit()
+
 async def add_food_entry(user_id,
                          food_name,
                          weight,
@@ -231,3 +250,35 @@ async def delete_old_food_entries(cutoff_datetime):
             )
         )
         await db.commit()
+
+async def search_basic_foods(food_name, limit=20):
+    async with aiosqlite.connect("data/basic_foods.db") as db:
+        name = food_name.strip().casefold()
+        cursor = await db.execute(
+            """
+                SELECT name_ru, calories, protein, fat, carbs FROM basic_foods
+                WHERE name_normalized LIKE ?
+                LIMIT ?
+            """,
+            (
+                f"%{name}%",
+                limit
+            )
+        )
+
+        result = []
+        rows = await cursor.fetchall()
+        for row in rows:
+            food = {
+                "name": row[0],
+                "brand": None,
+                "calories": row[1],
+                "protein": row[2],
+                "fat": row[3],
+                "carbs": row[4],
+                "source": "local",
+                "url": None
+            }
+            result.append(food)
+
+        return result

@@ -4,30 +4,14 @@ from aiogram.types import Message, CallbackQuery
 
 from states import ProductSearch
 from services.perek import search_perek
-from services.openfoodfacts import search_openfoodfacts
 from keyboards import add_food_menu, products_search_menu, confirm_search_food, start_menu
-from database import add_food_entry
+from database import add_food_entry, search_basic_foods
 
 router = Router()
 
-def remove_duplicates(products):
-    result = []
-    seen = set()
-    for food in products:
-        name = (food.get('name') or "").strip().lower()
-        brand = (food.get('brand') or "").strip().lower()
-        key = (name, brand)
-        if key in seen or not name: continue
-        result.append(food)
-        seen.add(key)
-    return result
-
 async def search_all_products(food_name):
-    products = await search_perek(food_name, 5)
-    if len(products) < 5:
-        additional_products = await search_openfoodfacts(food_name, 10)
-        products.extend(additional_products)
-    return remove_duplicates(products)[:5]
+    products = await search_basic_foods(food_name)
+    return products if products else await search_perek(food_name, 5)
 
 @router.callback_query(F.data == "find_food")
 async def find_food_callback_handler(callback: CallbackQuery, state: FSMContext) -> None:
@@ -38,6 +22,7 @@ async def find_food_callback_handler(callback: CallbackQuery, state: FSMContext)
 @router.message(ProductSearch.waiting_for_product, F.text)
 async def waiting_for_product_handler(message: Message, state: FSMContext) -> None:
     products = await search_all_products(message.text)
+
     if not products:
         await state.clear()
         await message.answer("Ничего не найдено", reply_markup=add_food_menu())
@@ -54,6 +39,14 @@ async def selected_product_handler(callback: CallbackQuery, state: FSMContext) -
     await state.update_data(selected_product=products[index])
     await state.set_state(ProductSearch.waiting_for_weight)
     await callback.message.edit_text("Введите вес:")
+
+@router.callback_query(ProductSearch.waiting_for_product, F.data.startswith("product_page_"))
+async def selected_page_handler(callback: CallbackQuery, state: FSMContext) -> None:
+    await callback.answer()
+    data = await state.get_data()
+    products = data.get("products", [])
+    page = int(callback.data.split('_')[-1])
+    await callback.message.edit_reply_markup(reply_markup=products_search_menu(products,page=page))
 
 @router.message(ProductSearch.waiting_for_weight, F.text)
 async def waiting_for_weight_handler(message: Message, state: FSMContext) -> None:
