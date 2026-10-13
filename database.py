@@ -251,23 +251,42 @@ async def delete_old_food_entries(cutoff_datetime):
         )
         await db.commit()
 
+def normalize_search_words(query):
+    return query.casefold().replace(',', ' ').split()
+
+def product_score(product_name, query):
+    product_name = product_name.casefold()
+    products_words = normalize_search_words(product_name)
+    full_query = " ".join(query)
+    if products_words == query: return 0
+    if products_words[:len(query)] == query: return 1
+    if full_query in product_name: return 2
+    if all(word in products_words for word in query): return 3
+    return 4
+
 async def search_basic_foods(food_name, limit=20):
     async with aiosqlite.connect("data/basic_foods.db") as db:
-        name = food_name.strip().casefold()
+        words = normalize_search_words(food_name)
+        if not words: return []
+
+        params = tuple(f"%{word}%" for word in words)
+        conditions = " AND ".join(["name_normalized LIKE ?"] * len(words))
+
         cursor = await db.execute(
-            """
-                SELECT name_ru, calories, protein, fat, carbs FROM basic_foods
-                WHERE name_normalized LIKE ?
-                LIMIT ?
+            f"""
+                SELECT name_ru, calories, protein, fat, carbs 
+                FROM basic_foods
+                WHERE {conditions}
             """,
-            (
-                f"%{name}%",
-                limit
-            )
+            params
         )
 
         result = []
         rows = await cursor.fetchall()
+
+        rows.sort(key=lambda row: (product_score(row[0], words), len(row[0])))
+        rows = rows[:limit]
+
         for row in rows:
             food = {
                 "name": row[0],

@@ -24,7 +24,7 @@ def confirm_search_food():
 
 def products_search_menu(products, page=0):
     start = page * 5
-    end = start + 5
+    end = min(start + 5, len(products))
 
     builder = InlineKeyboardBuilder()
     for i in range(start, end):
