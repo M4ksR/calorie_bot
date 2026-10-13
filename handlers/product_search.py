@@ -38,7 +38,12 @@ async def selected_product_handler(callback: CallbackQuery, state: FSMContext) -
     products = data.get("products", [])
     await state.update_data(selected_product=products[index])
     await state.set_state(ProductSearch.waiting_for_weight)
-    await callback.message.edit_text("Введите вес:")
+    await callback.message.edit_text(f"Вы выбрали: {products[index]['name']}\n\n"
+                                     f"Калории на 100г: {products[index]['calories']}\n"
+                                     f"Белки на 100г: {products[index]['protein']}\n"
+                                     f"Жиры на 100г: {products[index]['fat']}\n"
+                                     f"Углеводы на 100г: {products[index]['carbs']}\n\n"
+                                     "Введите вес:")
 
 @router.callback_query(ProductSearch.waiting_for_product, F.data.startswith("product_page_"))
 async def selected_page_handler(callback: CallbackQuery, state: FSMContext) -> None:
@@ -79,7 +84,7 @@ async def waiting_for_weight_handler(message: Message, state: FSMContext) -> Non
 
     await state.set_state(ProductSearch.waiting_for_confirm)
     await message.answer(f"{name}, {weight}г\n\n"
-                         f"{calories}ккал\n"
+                         f"{calories:.1f}ккал\n"
                          f"Б: {protein:.1f}\n"
                          f"Ж: {fat:.1f}\n"
                          f"У: {carbs:.1f}",
