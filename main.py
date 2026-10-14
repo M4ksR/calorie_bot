@@ -4,6 +4,7 @@ import sys
 
 from database import init_database
 from aiogram import Bot, Dispatcher
+from aiogram.types.bot_command import BotCommand
 from maintenance import cleanup_scheduler
 
 from config import TOKEN
@@ -18,6 +19,13 @@ from handlers.saved_food import router as saved_food_router
 from handlers.product_search import router as product_search_router
 from handlers.menus import router as menus_router
 from handlers.fallback import router as fallback_router
+
+async def set_commands(bot) -> None:
+    commands = [
+        BotCommand(command="start", description="🪟Стартовое меню"),
+        BotCommand(command="help", description="📣Помощь")
+    ]
+    await bot.set_my_commands(commands)
 
 async def main() -> None:
     bot = Bot(token=TOKEN)
@@ -35,6 +43,7 @@ async def main() -> None:
     dp.include_router(fallback_router)
 
     await init_database()
+    await set_commands(bot)
     cleanup = asyncio.create_task(cleanup_scheduler())
     await dp.start_polling(bot)
 
