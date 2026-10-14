@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 
-from keyboards import calculation_of_daily_allowance, add_food_menu, start_menu
+from keyboards import calculation_of_daily_allowance, add_food_menu, start_menu, go_to_start_menu
 from database import get_daily_calories, get_today_calories
 
 router = Router()
@@ -18,11 +18,12 @@ async def LeftCalories_callback_handler(callback: CallbackQuery) -> None:
     daily = await get_daily_calories(callback.from_user.id)
     if daily is None:
         await callback.message.edit_text("Сначала рассчитайте свою норму",
-                                                                reply_markup=calculation_of_daily_allowance())
+                                        reply_markup=calculation_of_daily_allowance())
         return
 
     eaten = await get_today_calories(callback.from_user.id)
-    await callback.message.edit_text(f"На сегодня осталось: {daily - eaten}")
+    await callback.message.edit_text(f"На сегодня осталось: {daily - eaten}",
+                                     reply_markup=go_to_start_menu())
 
 @router.callback_query(F.data == "back")
 async def back_callback_handler(callback: CallbackQuery) -> None:
