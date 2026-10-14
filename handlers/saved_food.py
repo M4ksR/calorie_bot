@@ -5,8 +5,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from states import SavedFood
-from keyboards import saved_food_menu, add_food_menu, start_menu, cancel_add_food
-from database import add_food_entry, get_saved_food_by_id, get_saved_food
+from keyboards import saved_food_menu, add_food_menu, start_menu, cancel_add_food, delete_saved_food
+from database import add_food_entry, get_saved_food_by_id, get_saved_food, delete_saved_food_by_id
 
 router = Router()
 
@@ -39,6 +39,25 @@ async def saved_food_cancel_handler(callback: CallbackQuery, state: FSMContext) 
     await callback.message.edit_text("Добавление отменено\n\n"
                                      "Calorie counter",
                                      reply_markup=start_menu())
+
+@router.callback_query(F.data == "delete_saved_food")
+async def delete_saved_food_handler(callback: CallbackQuery) -> None:
+    await callback.answer()
+    data = await get_saved_food(callback.from_user.id)
+    await callback.message.edit_text("Выберите блюдо для удаления:", reply_markup=delete_saved_food(data))
+
+@router.callback_query(F.data.startswith("delete_saved_food_"))
+async def delete_saved_food_callback_handler(callback: CallbackQuery) -> None:
+    await callback.answer()
+    await delete_saved_food_by_id(int(callback.data.split('_')[-1]), callback.from_user.id)
+    data = await get_saved_food(callback.from_user.id)
+    await callback.message.edit_text("Выберите сохраненное блюдо", reply_markup=saved_food_menu(data))
+
+@router.callback_query(F.data == "cancel_delete_food")
+async def cancel_delete_food_handler(callback: CallbackQuery) -> None:
+    await callback.answer()
+    data = await get_saved_food(callback.from_user.id)
+    await callback.message.edit_text("Выберите сохраненное блюдо", reply_markup=saved_food_menu(data))
 
 @router.callback_query(F.data.startswith("saved_food_"))
 async def saved_food_callback_handler(callback: CallbackQuery, state: FSMContext) -> None:

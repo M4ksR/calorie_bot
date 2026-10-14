@@ -222,6 +222,19 @@ async def get_saved_food_by_id(food_id, user_id):
         )
         return await cursor.fetchone()
 
+async def delete_saved_food_by_id(food_id, user_id):
+    async with aiosqlite.connect("calorie_bot.db") as db:
+        await db.execute(
+            """
+            DELETE FROM saved_food 
+            WHERE id = ? AND user_id = ?
+            """,
+            (
+                food_id, user_id
+            )
+        )
+        await db.commit()
+
 async def get_food_entries_by_date(user_id, selected_date):
     async with aiosqlite.connect("calorie_bot.db") as db:
         cursor = await db.execute(

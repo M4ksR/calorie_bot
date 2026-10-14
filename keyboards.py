@@ -65,11 +65,26 @@ def saved_food_menu(data):
 
     for food in data:
         builder.button(text=f"{food[1]} - {food[2]:.0f} ккал", callback_data=f"saved_food_{food[0]}")
-
-    builder.button(text="↩️Назад", callback_data="cancel_add_food")
-
     builder.adjust(1)
+
+    builder.row(
+        InlineKeyboardButton(text="🗑️Удалить", callback_data="delete_saved_food"),
+        InlineKeyboardButton(text="↩️Назад", callback_data="cancel_add_food")
+    )
+
     return builder.as_markup()
+
+def delete_saved_food(data):
+    builder = InlineKeyboardBuilder()
+
+    for food in data:
+        builder.button(text=f"{food[1]} - {food[2]:.0f} ккал", callback_data=f"delete_saved_food_{food[0]}")
+
+    builder.button(text="↩️Назад", callback_data="cancel_delete_food")
+    builder.adjust(1)
+
+    return builder.as_markup()
+
 
 def history(calories):
     builder = InlineKeyboardBuilder()
