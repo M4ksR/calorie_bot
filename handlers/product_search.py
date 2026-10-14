@@ -4,7 +4,7 @@ from aiogram.types import Message, CallbackQuery
 
 from states import ProductSearch
 from services.perek import search_perek
-from keyboards import add_food_menu, products_search_menu, confirm_search_food, start_menu
+from keyboards import add_food_menu, products_search_menu, confirm_search_food, start_menu, cancel_add_food
 from database import add_food_entry, search_basic_foods
 
 router = Router()
@@ -16,7 +16,7 @@ async def search_all_products(food_name):
 @router.callback_query(F.data == "find_food")
 async def find_food_callback_handler(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
-    await callback.message.edit_text("Введите название продукта:")
+    await callback.message.edit_text("Введите название продукта:", reply_markup=cancel_add_food())
     await state.set_state(ProductSearch.waiting_for_product)
 
 @router.message(ProductSearch.waiting_for_product, F.text)
@@ -43,7 +43,7 @@ async def selected_product_handler(callback: CallbackQuery, state: FSMContext) -
                                      f"Белки на 100г: {products[index]['protein']}\n"
                                      f"Жиры на 100г: {products[index]['fat']}\n"
                                      f"Углеводы на 100г: {products[index]['carbs']}\n\n"
-                                     "Введите вес:")
+                                     "Введите вес:", reply_markup=cancel_add_food())
 
 @router.callback_query(ProductSearch.waiting_for_product, F.data.startswith("product_page_"))
 async def selected_page_handler(callback: CallbackQuery, state: FSMContext) -> None:

@@ -1,3 +1,4 @@
+from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 
 from datetime import datetime, timedelta
@@ -12,6 +13,16 @@ WEEKDAYS = [
     "Суббота",
     "Воскресенье"
 ]
+
+def cancel_daily_allowance():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="↩️Назад", callback_data="cancel_daily_allowance")
+    return builder.as_markup()
+
+def cancel_add_food():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="↩️Назад", callback_data="cancel_add_food")
+    return builder.as_markup()
 
 def go_to_start_menu():
     builder = InlineKeyboardBuilder()
@@ -35,6 +46,8 @@ def products_search_menu(products, page=0):
     for i in range(start, end):
         builder.button(text=f"{products[i].get('name')} | {products[i].get('brand - ', "")}{products[i].get('calories'):.0f}ккал",
                        callback_data=f"product_select_{i}")
+
+    builder.button(text="↩️Назад", callback_data="cancel_add_food")
     builder.adjust(1)
 
     buttons = []
@@ -45,7 +58,6 @@ def products_search_menu(products, page=0):
         buttons.append(InlineKeyboardButton(text="след▶️",
                                             callback_data=f"product_page_{page+1}"))
     builder.row(*buttons)
-
     return builder.as_markup()
 
 def saved_food_menu(data):
@@ -54,7 +66,7 @@ def saved_food_menu(data):
     for food in data:
         builder.button(text=f"{food[1]} - {food[2]:.0f} ккал", callback_data=f"saved_food_{food[0]}")
 
-    builder.button(text="↩️Назад", callback_data="back")
+    builder.button(text="↩️Назад", callback_data="cancel_add_food")
 
     builder.adjust(1)
     return builder.as_markup()
@@ -92,6 +104,7 @@ def purpose():
     builder.button(text="📉Снижение веса", callback_data="WeightLoss")
     builder.button(text="⚖️Поддержание веса", callback_data="WeightMaintenance")
     builder.button(text="📈Увеличение веса", callback_data="WeightGain")
+    builder.button(text="↩️Назад", callback_data="cancel_daily_allowance")
 
     builder.adjust(1)
     return builder.as_markup()
@@ -103,6 +116,7 @@ def activity():
     builder.button(text="🚶Легкая активность", callback_data="Lite")
     builder.button(text="🏃Умеренная активность", callback_data="Medium")
     builder.button(text="🏋️Высокая активность", callback_data="Hard")
+    builder.button(text="↩️Назад", callback_data="cancel_daily_allowance")
 
     builder.adjust(1)
     return builder.as_markup()
@@ -112,6 +126,7 @@ def gender():
 
     builder.button(text="👨Мужчина", callback_data="Male")
     builder.button(text="👩Женщина", callback_data="Female")
+    builder.button(text="↩️️Назад", callback_data="cancel_daily_allowance")
 
     builder.adjust(2)
     return builder.as_markup()

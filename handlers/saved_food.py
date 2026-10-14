@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from states import SavedFood
-from keyboards import saved_food_menu, add_food_menu, start_menu
+from keyboards import saved_food_menu, add_food_menu, start_menu, cancel_add_food
 from database import add_food_entry, get_saved_food_by_id, get_saved_food
 
 router = Router()
@@ -52,7 +52,7 @@ async def saved_food_callback_handler(callback: CallbackQuery, state: FSMContext
                             carbs=data[4])
 
     await state.set_state(SavedFood.waiting_for_weight)
-    await callback.message.edit_text("Введите вес блюда")
+    await callback.message.edit_text("Введите вес блюда", reply_markup=cancel_add_food())
 
 @router.message(SavedFood.waiting_for_weight, F.text)
 async def saved_food_weight_handler(message: Message, state: FSMContext) -> None:
@@ -71,8 +71,8 @@ async def saved_food_weight_handler(message: Message, state: FSMContext) -> None
 
     builder = InlineKeyboardBuilder()
 
-    builder.button(text="Подтвердить", callback_data="saved_food_confirm")
-    builder.button(text="Отменить", callback_data="saved_food_cancel")
+    builder.button(text="✅Подтвердить", callback_data="saved_food_confirm")
+    builder.button(text="❌Отменить", callback_data="saved_food_cancel")
     builder.adjust(1)
 
     await message.answer("Подтвердить добавление", reply_markup=builder.as_markup())

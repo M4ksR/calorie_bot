@@ -3,7 +3,7 @@ from aiogram.types import Message, CallbackQuery
 
 from aiogram.fsm.context import FSMContext
 from states import CustomFood
-from keyboards import confirm_custom_food, add_food_menu, start_menu
+from keyboards import confirm_custom_food, add_food_menu, start_menu, cancel_add_food
 from database import save_food, add_food_entry
 
 router = Router()
@@ -12,7 +12,7 @@ router = Router()
 async def my_food_callback_handler(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
     await state.set_state(CustomFood.waiting_for_name_of_food)
-    await callback.message.answer("Введите название блюда:")
+    await callback.message.edit_text("Введите название блюда:", reply_markup=cancel_add_food())
 
 @router.message(CustomFood.waiting_for_name_of_food, F.text)
 async def custom_food_name_handler(message: Message, state: FSMContext) -> None:

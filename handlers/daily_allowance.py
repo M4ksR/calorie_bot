@@ -3,7 +3,14 @@ from aiogram.types import Message, CallbackQuery
 
 from aiogram.fsm.context import FSMContext
 from states import DailyAllowance
-from keyboards import calculation_of_daily_allowance, purpose, activity, start_menu, gender, go_to_start_menu
+
+from keyboards import (calculation_of_daily_allowance,
+                       purpose,
+                       activity,
+                       start_menu,
+                       gender,
+                       go_to_start_menu,
+                       cancel_daily_allowance)
 
 from database import get_daily_calories, set_daily_calories
 
@@ -34,7 +41,7 @@ async def DailyAllowance_gender_handler(callback: CallbackQuery, state: FSMConte
     await callback.answer()
     await state.update_data(gender=callback.data)
     await state.set_state(DailyAllowance.waiting_for_weight)
-    await callback.message.edit_text("Введите ваш вес")
+    await callback.message.edit_text("Введите ваш вес", reply_markup=cancel_daily_allowance())
 
 @router.message(DailyAllowance.waiting_for_weight, F.text)
 async def DailyAllowance_weight_handler(message: Message, state: FSMContext) -> None:
@@ -50,7 +57,7 @@ async def DailyAllowance_weight_handler(message: Message, state: FSMContext) -> 
 
     await state.update_data(weight=value)
     await state.set_state(DailyAllowance.waiting_for_height)
-    await message.answer("Введите ваш рост")
+    await message.answer("Введите ваш рост", reply_markup=cancel_daily_allowance())
 
 @router.message(DailyAllowance.waiting_for_height, F.text)
 async def DailyAllowance_height_handler(message: Message, state: FSMContext) -> None:
@@ -66,7 +73,7 @@ async def DailyAllowance_height_handler(message: Message, state: FSMContext) -> 
 
     await state.update_data(height=value)
     await state.set_state(DailyAllowance.waiting_for_age)
-    await message.answer("Введите ваш возраст")
+    await message.answer("Введите ваш возраст", reply_markup=cancel_daily_allowance())
 
 @router.message(DailyAllowance.waiting_for_age, F.text)
 async def DailyAllowance_age_handler(message: Message, state: FSMContext) -> None:
