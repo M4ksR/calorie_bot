@@ -26,7 +26,7 @@ def cancel_add_food():
 
 def go_to_start_menu():
     builder = InlineKeyboardBuilder()
-    builder.button(text="Стартовое меню", callback_data="go_to_start_menu")
+    builder.button(text="🪟Стартовое меню", callback_data="go_to_start_menu")
     return builder.as_markup()
 
 def confirm_search_food():
@@ -149,7 +149,7 @@ def gender():
 def calculation_of_daily_allowance():
     builder = InlineKeyboardBuilder()
 
-    builder.button(text="🧮Рассчитать норму", callback_data="Calculate_daily")
+    builder.button(text="📱Рассчитать норму", callback_data="Calculate_daily")
     builder.button(text="📊Узнать норму", callback_data="Find_out_daily")
     builder.button(text="↩️Назад", callback_data="Back_daily")
 
