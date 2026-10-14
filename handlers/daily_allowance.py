@@ -48,11 +48,11 @@ async def DailyAllowance_weight_handler(message: Message, state: FSMContext) -> 
     try:
         value = float(message.text.strip())
     except ValueError:
-        await message.answer("Неверный формат")
+        await message.answer("Неверный формат", reply_markup=go_to_start_menu())
         return
 
     if value <= 0:
-        await message.answer("Неверный формат")
+        await message.answer("Неверный формат", reply_markup=go_to_start_menu())
         return
 
     await state.update_data(weight=value)
@@ -64,11 +64,11 @@ async def DailyAllowance_height_handler(message: Message, state: FSMContext) -> 
     try:
         value = float(message.text.strip())
     except ValueError:
-        await message.answer("Неверный формат")
+        await message.answer("Неверный формат", reply_markup=go_to_start_menu())
         return
 
     if value <= 0:
-        await message.answer("Неверный формат")
+        await message.answer("Неверный формат", reply_markup=go_to_start_menu())
         return
 
     await state.update_data(height=value)
@@ -80,11 +80,11 @@ async def DailyAllowance_age_handler(message: Message, state: FSMContext) -> Non
     try:
         value = int(message.text.strip())
     except ValueError:
-        await message.answer("Неверный формат")
+        await message.answer("Неверный формат", reply_markup=go_to_start_menu())
         return
 
     if value <= 0:
-        await message.answer("Неверный формат")
+        await message.answer("Неверный формат", reply_markup=go_to_start_menu())
         return
 
     await state.update_data(age=value)
@@ -99,7 +99,7 @@ async def DailyAllowance_activity_handler(callback: CallbackQuery, state: FSMCon
     elif callback.data == "Lite": coef = 1.375
     elif callback.data == "Medium": coef = 1.55
     elif callback.data == "Hard": coef = 1.725
-    else: await callback.answer("Неверный формат") ; return
+    else: await callback.answer("Неверный формат", reply_markup=go_to_start_menu()) ; return
 
     await state.update_data(activity=coef)
     await state.set_state(DailyAllowance.waiting_for_purpose)
@@ -112,7 +112,7 @@ async def DailyAllowance_purpose_handler(callback: CallbackQuery, state: FSMCont
     if callback.data == "WeightLoss": coef = -15
     elif callback.data == "WeightMaintenance": coef = 0
     elif callback.data == "WeightGain": coef = 12
-    else: await callback.answer("Неверный формат") ; return
+    else: await callback.answer("Неверный формат", reply_markup=go_to_start_menu()) ; return
 
     data = await state.get_data()
     scale = (10 * data['weight']) + (6.25 * data['height']) - (5 * data['age'])

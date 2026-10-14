@@ -58,11 +58,11 @@ async def waiting_for_weight_handler(message: Message, state: FSMContext) -> Non
     try:
         weight = float(message.text.replace(',','.'))
     except ValueError:
-        await message.answer("Неверный формат ввода")
+        await message.answer("Неверный формат ввода", reply_markup=go_to_start_menu())
         return
 
     if weight <= 0:
-        await message.answer("Неверный формат ввода")
+        await message.answer("Неверный формат ввода", reply_markup=go_to_start_menu())
         return
 
     data = await state.get_data()

@@ -5,8 +5,17 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from states import SavedFood
-from keyboards import saved_food_menu, add_food_menu, start_menu, cancel_add_food, delete_saved_food
-from database import add_food_entry, get_saved_food_by_id, get_saved_food, delete_saved_food_by_id
+from keyboards import (saved_food_menu,
+                       add_food_menu,
+                       start_menu,
+                       cancel_add_food,
+                       delete_saved_food,
+                       go_to_start_menu)
+
+from database import (add_food_entry,
+                      get_saved_food_by_id,
+                      get_saved_food,
+                      delete_saved_food_by_id)
 
 router = Router()
 
@@ -78,11 +87,11 @@ async def saved_food_weight_handler(message: Message, state: FSMContext) -> None
     try:
         weight = float(message.text)
     except ValueError:
-        await message.answer("Неверный формат")
+        await message.answer("Неверный формат", reply_markup=go_to_start_menu())
         return
 
     if weight < 0:
-        await message.answer("Неверный формат")
+        await message.answer("Неверный формат", reply_markup=go_to_start_menu())
         return
 
     await state.update_data(weight=weight)
