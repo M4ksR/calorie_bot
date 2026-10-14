@@ -65,10 +65,10 @@ async def custom_food_weight_handler(message: Message, state: FSMContext) -> Non
     data = await state.get_data()
 
     await message.answer(f"Название блюда: {data['food_name']}\n\n"
-                         f"Калории на {value}г: {data['calories'] * value / 100}\n"
-                         f"Белки на {value}г: {data['protein'] * value / 100}\n"
-                         f"Жиры на {value}г: {data['fat'] * value / 100}\n"
-                         f"Углеводы на {value}г: {data['carbs'] * value / 100}",
+                         f"Калории на {value}г: {data['calories'] * value / 100:.1f}\n"
+                         f"Белки на {value}г: {data['protein'] * value / 100:.1f}\n"
+                         f"Жиры на {value}г: {data['fat'] * value / 100:.1f}\n"
+                         f"Углеводы на {value}г: {data['carbs'] * value / 100:.1f}",
                          reply_markup=confirm_custom_food())
 
 @router.callback_query(F.data.in_({"confirm_food", "confirm_and_save_food"}))

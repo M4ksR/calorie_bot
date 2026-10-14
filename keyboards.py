@@ -44,7 +44,7 @@ def products_search_menu(products, page=0):
 
     builder = InlineKeyboardBuilder()
     for i in range(start, end):
-        builder.button(text=f"{products[i].get('name')} | {products[i].get('brand - ', "")}{products[i].get('calories'):.0f}ккал",
+        builder.button(text=f"{products[i].get('name')} | {products[i].get('brand - ', "")}{products[i].get('calories'):.1f}ккал",
                        callback_data=f"product_select_{i}")
 
     builder.button(text="↩️Назад", callback_data="cancel_add_food")
@@ -64,7 +64,7 @@ def saved_food_menu(data):
     builder = InlineKeyboardBuilder()
 
     for food in data:
-        builder.button(text=f"{food[1]} - {food[2]:.0f} ккал", callback_data=f"saved_food_{food[0]}")
+        builder.button(text=f"{food[1]} - {food[2]:.1f} ккал", callback_data=f"saved_food_{food[0]}")
     builder.adjust(1)
 
     builder.row(
@@ -78,7 +78,7 @@ def delete_saved_food(data):
     builder = InlineKeyboardBuilder()
 
     for food in data:
-        builder.button(text=f"{food[1]} - {food[2]:.0f} ккал", callback_data=f"delete_saved_food_{food[0]}")
+        builder.button(text=f"{food[1]} - {food[2]:.1f} ккал", callback_data=f"delete_saved_food_{food[0]}")
 
     builder.button(text="↩️Назад", callback_data="cancel_delete_food")
     builder.adjust(1)
@@ -96,7 +96,7 @@ def history(calories):
         curr_date = today + timedelta(days=offset)
         weekday = WEEKDAYS[curr_date.weekday()]
         date_text = curr_date.strftime("%d.%m")
-        builder.button(text=f"{weekday} - {date_text} - {calories[offset + 6]:.0f} ккал", callback_data=f"FoodHistory_{offset}")
+        builder.button(text=f"{weekday} - {date_text} - {calories[offset + 6]:.1f} ккал", callback_data=f"FoodHistory_{offset}")
 
     builder.button(text="↩️Назад", callback_data="back")
     builder.adjust(1)
@@ -106,7 +106,7 @@ def history(calories):
 def delete_food_menu(data):
     builder = InlineKeyboardBuilder()
     for i in data:
-        builder.button(text=f"{i[1]} - {i[2]}г - {i[3]:.0f}ккал", callback_data=f"delete_food_{i[0]}")
+        builder.button(text=f"{i[1]} - {i[2]}г - {i[3]:.1f}ккал", callback_data=f"delete_food_{i[0]}")
 
     builder.button(text="↩️Назад", callback_data="back")
     builder.adjust(1)

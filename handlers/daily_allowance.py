@@ -27,7 +27,7 @@ async def Find_Out_handler(callback: CallbackQuery) -> None:
     daily_calories = await get_daily_calories(callback.from_user.id)
     if daily_calories is None: await callback.message.edit_text("Сначала рассчитайте свою норму",
                                                                 reply_markup=calculation_of_daily_allowance())
-    else: await callback.message.edit_text(f"Ваша норма: {daily_calories}",
+    else: await callback.message.edit_text(f"Ваша норма: {daily_calories:.1f}",
                                            reply_markup=go_to_start_menu())
 
 @router.callback_query(F.data == "Calculate_daily")
@@ -96,9 +96,9 @@ async def DailyAllowance_activity_handler(callback: CallbackQuery, state: FSMCon
     await callback.answer()
 
     if callback.data == "Sit": coef = 1.2
-    elif callback.data == "Lite": coef = 1.42
+    elif callback.data == "Lite": coef = 1.375
     elif callback.data == "Medium": coef = 1.55
-    elif callback.data == "Hard": coef = 1.8
+    elif callback.data == "Hard": coef = 1.725
     else: await callback.answer("Неверный формат") ; return
 
     await state.update_data(activity=coef)
@@ -123,7 +123,7 @@ async def DailyAllowance_purpose_handler(callback: CallbackQuery, state: FSMCont
     scale *= data['activity']
     scale *= (100 + coef) / 100
 
-    await callback.message.edit_text(f"Ваша дневная норма: {scale}", reply_markup=start_menu())
+    await callback.message.edit_text(f"Ваша дневная норма: {scale:.1f}", reply_markup=start_menu())
     await set_daily_calories(callback.from_user.id, scale)
     await state.clear()
 

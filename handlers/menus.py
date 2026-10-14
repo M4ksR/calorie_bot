@@ -22,7 +22,7 @@ async def LeftCalories_callback_handler(callback: CallbackQuery) -> None:
         return
 
     eaten = await get_today_calories(callback.from_user.id)
-    await callback.message.edit_text(f"На сегодня осталось: {daily - eaten}",
+    await callback.message.edit_text(f"На сегодня осталось: {daily - eaten:.1f}",
                                      reply_markup=go_to_start_menu())
 
 @router.callback_query(F.data == "back")
