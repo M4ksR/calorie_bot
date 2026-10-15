@@ -15,7 +15,7 @@ async def food_history_handler(callback: CallbackQuery) -> None:
 
     splt = callback.data.split('_')
     offset = int(splt[1]) if len(splt) > 1 else 0
-    calories = [await get_today_calories(callback.from_user.id, day)
+    calories = [(await get_today_calories(callback.from_user.id, day))[0]
                 for day in [datetime.now(ZoneInfo("Europe/Moscow")).date() + timedelta(days=off) for off in range(-6,1)]]
 
     selected_date = datetime.now(ZoneInfo("Europe/Moscow")).date() + timedelta(days=offset)

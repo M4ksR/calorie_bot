@@ -4,7 +4,13 @@ from aiogram.types import Message, CallbackQuery
 
 from states import ProductSearch
 from services.perek import search_perek
-from keyboards import add_food_menu, products_search_menu, confirm_search_food, start_menu, cancel_add_food
+from keyboards import (add_food_menu,
+                       products_search_menu,
+                       confirm_search_food,
+                       start_menu,
+                       cancel_add_food,
+                       go_to_start_menu)
+
 from database import add_food_entry, search_basic_foods
 
 router = Router()

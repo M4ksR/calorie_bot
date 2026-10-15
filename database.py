@@ -21,7 +21,10 @@ async def init_database():
             """
             CREATE TABLE IF NOT EXISTS users (
                 user_id INTEGER PRIMARY KEY,
-                daily_calories INTEGER NOT NULL
+                daily_calories REAL NOT NULL,
+                daily_protein REAL NOT NULL,
+                daily_fat REAL NOT NULL,
+                daily_carbs REAL NOT NULL
             )
             """
         )
@@ -92,19 +95,30 @@ async def add_food_entry(user_id,
         )
         await db.commit()
 
-async def set_daily_calories(user_id, daily_calories):
+async def set_daily_calories(user_id,
+                             daily_calories,
+                             daily_protein,
+                             daily_fat,
+                             daily_carbs):
     async with aiosqlite.connect("calorie_bot.db") as db:
         await db.execute(
             """
-            INSERT INTO users (user_id, daily_calories) 
-            VALUES (?, ?)
+            INSERT INTO users (user_id, daily_calories, daily_protein, daily_fat, daily_carbs) 
+            VALUES (?, ?, ?, ?, ?)
                 
             ON CONFLICT (user_id)
-            DO UPDATE SET daily_calories = excluded.daily_calories
+            DO UPDATE SET 
+                daily_calories = excluded.daily_calories,
+                daily_protein = excluded.daily_protein,
+                daily_fat = excluded.daily_fat,
+                daily_carbs = excluded.daily_carbs
             """,
             (
                 user_id,
-                daily_calories
+                daily_calories,
+                daily_protein,
+                daily_fat,
+                daily_carbs
             )
         )
         await db.commit()
@@ -113,7 +127,7 @@ async def get_daily_calories(user_id):
     async with aiosqlite.connect("calorie_bot.db") as db:
         cursor = await db.execute(
             """
-            SELECT daily_calories
+            SELECT daily_calories, daily_protein, daily_fat, daily_carbs
             FROM users
             WHERE user_id = ?
             """,
@@ -122,13 +136,17 @@ async def get_daily_calories(user_id):
             )
         )
         row = await cursor.fetchone()
-        return None if (row is None) else row[0]
+        return None if not row else row
 
 async def get_today_calories(user_id, current_date="now"):
     async with aiosqlite.connect("calorie_bot.db") as db:
         cursor = await db.execute(
             """
-            SELECT COALESCE(SUM(calories), 0)
+            SELECT 
+                COALESCE(SUM(calories), 0), 
+                COALESCE(SUM(protein), 0), 
+                COALESCE(SUM(fat), 0), 
+                COALESCE(SUM(carbs), 0) 
             FROM food_entries
             WHERE user_id = ?
             AND DATE(created_at) = DATE(?)
@@ -139,7 +157,7 @@ async def get_today_calories(user_id, current_date="now"):
             )
         )
         row = await cursor.fetchone()
-        return row[0]
+        return row
 
 async def get_today_food_entries(user_id):
     async with aiosqlite.connect("calorie_bot.db") as db:
