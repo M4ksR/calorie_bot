@@ -1,4 +1,3 @@
-from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 
 from datetime import datetime, timedelta
@@ -13,6 +12,15 @@ WEEKDAYS = [
     "Суббота",
     "Воскресенье"
 ]
+
+def confirm_aifood():
+    builder = InlineKeyboardBuilder()
+
+    builder.button(text="✅Добавить", callback_data="confirm_aifood")
+    builder.button(text="❌Отменить", callback_data="cancel_aifood")
+    builder.adjust(2)
+
+    return builder.as_markup()
 
 def cancel_daily_allowance():
     builder = InlineKeyboardBuilder()
@@ -172,6 +180,7 @@ def add_food_menu():
     builder.button(text="⭐Сохраненные блюда", callback_data="save_food")
     builder.button(text="🔎Поиск продукта", callback_data="find_food")
     builder.button(text="✍️Свое блюдо", callback_data="my_food")
+    builder.button(text="⚡Быстрый подсчёт", callback_data="quick_calculation")
     builder.button(text="↩️Назад", callback_data="back")
 
     builder.adjust(1)

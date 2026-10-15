@@ -4,3 +4,4 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN = getenv("BOT_TOKEN")
 PEREK_API_KEY = getenv("PEREK_API_KEY")
+GEMINI_API_KEY = getenv("GEMINI_API_KEY")

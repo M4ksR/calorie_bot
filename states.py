@@ -21,3 +21,7 @@ class ProductSearch(StatesGroup):
     waiting_for_product = State()
     waiting_for_weight = State()
     waiting_for_confirm = State()
+
+class AiFood(StatesGroup):
+    waiting_for_food_list = State()
+    waiting_for_confirm = State()

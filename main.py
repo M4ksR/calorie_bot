@@ -12,6 +12,7 @@ from config import TOKEN
 from handlers.commands import router as commands_router
 from handlers.common import router as common_router
 from handlers.custom_food import router as custom_food_router
+from handlers.ai_food import router as aifood_router
 from handlers.delete_food import router as delete_food_router
 from handlers.food_history import router as food_history_router
 from handlers.daily_allowance import router as daily_allowance_router
@@ -34,6 +35,7 @@ async def main() -> None:
     dp.include_router(commands_router)
     dp.include_router(common_router)
     dp.include_router(custom_food_router)
+    dp.include_router(aifood_router)
     dp.include_router(delete_food_router)
     dp.include_router(food_history_router)
     dp.include_router(daily_allowance_router)
