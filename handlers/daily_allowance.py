@@ -28,10 +28,10 @@ async def Find_Out_handler(callback: CallbackQuery) -> None:
     if not daily_calories: await callback.message.edit_text("Сначала рассчитайте свою норму",
                                                                 reply_markup=calculation_of_daily_allowance())
     else: await callback.message.edit_text("Ваша норма:\n\n"
-                                           f"К:  {daily_calories[0]:.1f} ккал\n"
-                                           f"Б:  {daily_calories[1]:.1f} г\n"
-                                           f"Ж:  {daily_calories[2]:.1f} г\n"
-                                           f"У:  {daily_calories[3]:.1f} г",
+                                           f"К:  {daily_calories[0]:.0f} ккал\n"
+                                           f"Б:  {daily_calories[1]:.0f} г\n"
+                                           f"Ж:  {daily_calories[2]:.0f} г\n"
+                                           f"У:  {daily_calories[3]:.0f} г",
                                            reply_markup=go_to_start_menu())
 
 @router.callback_query(F.data == "Calculate_daily")
@@ -137,10 +137,10 @@ async def DailyAllowance_purpose_handler(callback: CallbackQuery, state: FSMCont
     carbs = scale * coef[3] / (100 * 4)
 
     await callback.message.edit_text("Ваша дневная норма:\n\n"
-                                     f"К:  {scale:.1f} ккал\n"
-                                     f"Б:  {protein:.1f} г\n"
-                                     f"Ж:  {fat:.1f} г\n"
-                                     f"У:  {carbs:.1f}",
+                                     f"К:  {scale:.0f} ккал\n"
+                                     f"Б:  {protein:.0f} г\n"
+                                     f"Ж:  {fat:.0f} г\n"
+                                     f"У:  {carbs:.0f}",
                                      reply_markup=start_menu())
 
     await set_daily_calories(callback.from_user.id, scale, protein, fat, carbs)
