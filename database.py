@@ -1,5 +1,11 @@
 import aiosqlite
 
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
+from pydantic.v1.json import isoformat
+
+
 async def init_database():
     async with aiosqlite.connect("calorie_bot.db") as db:
         await db.execute(
@@ -24,7 +30,9 @@ async def init_database():
                 daily_calories REAL NOT NULL,
                 daily_protein REAL NOT NULL,
                 daily_fat REAL NOT NULL,
-                daily_carbs REAL NOT NULL
+                daily_carbs REAL NOT NULL,
+                streak INTEGER NOT NULL DEFAULT 0,
+                last_active_date TEXT
             )
             """
         )
@@ -198,7 +206,7 @@ async def save_food(user_id, food_name, calories, protein, fat, carbs):
                                     protein,
                                     fat,
                                     carbs)
-            Values (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
             (
                 user_id,
@@ -332,3 +340,80 @@ async def search_basic_foods(food_name, limit=20):
             result.append(food)
 
         return result
+
+async def ensure_user(user_id):
+    async with aiosqlite.connect("calorie_bot.db") as db:
+        await db.execute(
+            """
+            INSERT OR IGNORE INTO users (user_id,
+                                        daily_calories,
+                                        daily_protein,
+                                        daily_fat,
+                                        daily_carbs,
+                                        streak,
+                                        last_active_date)
+            VALUES (?, 0, 0, 0, 0, 0, NULL)
+            """,
+            (
+                user_id,
+            )
+        )
+        await db.commit()
+
+async def update_streak(user_id):
+    await ensure_user(user_id)
+    today = datetime.now(ZoneInfo("Europe/Moscow")).date()
+    yesterday = (today - timedelta(days=1))
+
+    today = today.isoformat()
+    yesterday = yesterday.isoformat()
+
+    async with aiosqlite.connect("calorie_bot.db") as db:
+        cursor = await db.execute(
+            """
+            SELECT streak, last_active_date
+            FROM users
+            WHERE user_id = ?
+            """,
+            (
+                user_id,
+            )
+        )
+        row = await cursor.fetchone()
+
+        streak = row[0]
+        last_active_date = row[1]
+
+        if last_active_date == today:
+            pass
+        elif last_active_date == yesterday:
+            streak += 1
+        else:
+            streak = 1
+
+        await db.execute(
+            """
+            UPDATE users
+            SET streak = ?, last_active_date = ?
+            WHERE user_id = ?
+            """,
+            (
+                streak,
+                today,
+                user_id
+            )
+        )
+
+        await db.commit()
+        return streak
+
+async def add_food_and_update_streak(user_id,
+                                     food_name,
+                                     weight,
+                                     calories,
+                                     protein,
+                                     fat,
+                                     carbs):
+
+    await add_food_entry(user_id, food_name, weight, calories, protein, fat, carbs)
+    await update_streak(user_id)

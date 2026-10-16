@@ -4,7 +4,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from states import CustomFood
 from keyboards import confirm_custom_food, add_food_menu, start_menu, cancel_add_food, go_to_start_menu
-from database import save_food, add_food_entry
+from database import save_food, add_food_and_update_streak
 
 router = Router()
 
@@ -77,7 +77,7 @@ async def confirm_food_callback_handler(callback: CallbackQuery, state: FSMConte
     await callback.answer()
     data = await state.get_data()
     coef =  data['weight'] / 100
-    await add_food_entry(callback.from_user.id,
+    await add_food_and_update_streak(callback.from_user.id,
                          data['food_name'],
                          data['weight'],
                          data['calories'] * coef,

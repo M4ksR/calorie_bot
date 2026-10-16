@@ -12,7 +12,7 @@ from keyboards import (saved_food_menu,
                        delete_saved_food,
                        go_to_start_menu)
 
-from database import (add_food_entry,
+from database import (add_food_and_update_streak,
                       get_saved_food_by_id,
                       get_saved_food,
                       delete_saved_food_by_id)
@@ -32,7 +32,7 @@ async def save_food_callback_handler(callback: CallbackQuery) -> None:
 async def saved_food_confirm_handler(callback: CallbackQuery, state: FSMContext) -> None:
     data = await state.get_data()
     coef = data['weight'] / 100
-    await add_food_entry(callback.from_user.id,
+    await add_food_and_update_streak(callback.from_user.id,
                          data['food_name'],
                          data['weight'],
                          data['calories'] * coef,

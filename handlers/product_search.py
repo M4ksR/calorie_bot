@@ -11,7 +11,7 @@ from keyboards import (add_food_menu,
                        cancel_add_food,
                        go_to_start_menu)
 
-from database import add_food_entry, search_basic_foods
+from database import add_food_and_update_streak, search_basic_foods
 
 router = Router()
 
@@ -100,7 +100,7 @@ async def waiting_for_weight_handler(message: Message, state: FSMContext) -> Non
 async def confirm_search_food_handler(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
     data = await state.get_data()
-    await add_food_entry(callback.from_user.id,
+    await add_food_and_update_streak(callback.from_user.id,
                          data['name'],
                          data['weight'],
                          data['calories'],

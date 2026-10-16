@@ -3,11 +3,13 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 
 from keyboards import start_menu, go_to_start_menu
+from database import ensure_user
 
 router = Router()
 
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
+    await ensure_user(message.from_user.id)
     await message.answer("Calorie Counter", reply_markup=start_menu())
 
 @router.message(Command("help"))

@@ -5,7 +5,7 @@ from states import AiFood
 from aiogram.fsm.context import FSMContext
 from keyboards import cancel_add_food, confirm_aifood, add_food_menu
 from services.gemini import estimate_foods
-from database import add_food_entry
+from database import add_food_and_update_streak
 
 router = Router()
 
@@ -90,7 +90,7 @@ async def confirm_aifood_handler(callback: CallbackQuery, state: FSMContext):
     estimated_foods = data['estimated_foods']
 
     for food in estimated_foods:
-        await add_food_entry(callback.from_user.id,
+        await add_food_and_update_streak(callback.from_user.id,
                             food['name'],
                             food['weight'],
                             food['calories'],
