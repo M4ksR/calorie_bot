@@ -1,10 +1,9 @@
 import aiosqlite
 
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-from pydantic.v1.json import isoformat
-
+MOSCOW = ZoneInfo("Europe/Moscow")
 
 async def init_database():
     async with aiosqlite.connect("calorie_bot.db") as db:
@@ -146,8 +145,10 @@ async def get_daily_calories(user_id):
         row = await cursor.fetchone()
         return None if not row else row
 
-async def get_today_calories(user_id, current_date="now"):
+async def get_today_calories(user_id, current_date=None):
     async with aiosqlite.connect("calorie_bot.db") as db:
+        DT = datetime.now(MOSCOW).date() if current_date is None else current_date
+        start, end = get_day_bounds_utc(DT)
         cursor = await db.execute(
             """
             SELECT 
@@ -157,11 +158,13 @@ async def get_today_calories(user_id, current_date="now"):
                 COALESCE(SUM(carbs), 0) 
             FROM food_entries
             WHERE user_id = ?
-            AND DATE(created_at) = DATE(?)
+            AND created_at >= ?
+            AND created_at < ?
             """,
             (
             user_id,
-            current_date
+            start,
+            end
             )
         )
         row = await cursor.fetchone()
@@ -169,15 +172,20 @@ async def get_today_calories(user_id, current_date="now"):
 
 async def get_today_food_entries(user_id):
     async with aiosqlite.connect("calorie_bot.db") as db:
+        today = datetime.now(MOSCOW).date()
+        start, end = get_day_bounds_utc(today)
         cursor = await db.execute(
             """
             SELECT id, food_name, weight, calories
             FROM food_entries
             WHERE user_id = ?
-            AND DATE(created_at) = DATE('now')
+            AND created_at >= ?
+            AND created_at < ?
             """,
             (
                 user_id,
+                start,
+                end
             )
         )
         return await cursor.fetchall()
@@ -261,18 +269,30 @@ async def delete_saved_food_by_id(food_id, user_id):
         )
         await db.commit()
 
+def get_day_bounds_utc(selected_date):
+    start_msk = datetime.combine(selected_date, time.min, tzinfo=MOSCOW)
+    end_msk = start_msk + timedelta(days=1)
+
+    start_utc = start_msk.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    end_utc = end_msk.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
+    return start_utc, end_utc
+
 async def get_food_entries_by_date(user_id, selected_date):
     async with aiosqlite.connect("calorie_bot.db") as db:
+        start_utc, end_utc = get_day_bounds_utc(selected_date)
         cursor = await db.execute(
             """
             SELECT food_name, weight, calories, protein, fat, carbs FROM food_entries
             WHERE user_id = ?
-            AND DATE(created_at) = ?
+            AND created_at >= ?
+            AND created_at < ?
             ORDER BY created_at
             """,
             (
                 user_id,
-                selected_date
+                start_utc,
+                end_utc
             )
         )
         return await cursor.fetchall()
@@ -362,7 +382,7 @@ async def ensure_user(user_id):
 
 async def update_streak(user_id):
     await ensure_user(user_id)
-    today = datetime.now(ZoneInfo("Europe/Moscow")).date()
+    today = datetime.now(MOSCOW).date()
     yesterday = (today - timedelta(days=1))
 
     today = today.isoformat()
