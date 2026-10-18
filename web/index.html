@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+
+    <title>Calorie Counter</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="/static/app.js" defer></script>
+</head>
+<body>
+    <main class="app-shell">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">Сегодня</p>
+                <h1>Калории</h1>
+            </div>
+
+            <div class="streak-card" title="Серия дней">
+                <span class="streak-icon">🔥</span>
+                <span id="streak">0</span>
+            </div>
+        </header>
+
+        <section id="loading" class="state-card">
+            <div class="loader"></div>
+            <p>Загружаю данные...</p>
+        </section>
+
+        <section id="error" class="state-card hidden">
+            <div class="error-icon">!</div>
+            <h2>Не удалось загрузить данные</h2>
+            <p id="error-text">Открой Mini App внутри Telegram и попробуй ещё раз.</p>
+            <button id="retry-button" type="button">Повторить</button>
+        </section>
+
+        <div id="content" class="hidden">
+            <section class="calorie-card">
+                <div class="calorie-ring" id="calorie-ring">
+                    <div class="calorie-ring-inner">
+                        <strong id="calories-eaten">0</strong>
+                        <span>из <b id="calories-daily">0</b> ккал</span>
+                    </div>
+                </div>
+
+                <div class="calorie-summary">
+                    <span>Осталось</span>
+                    <strong id="calories-left">0 ккал</strong>
+                    <p id="calories-status">Держим темп</p>
+                </div>
+            </section>
+
+            <section class="section-block">
+                <div class="section-title">
+                    <h2>КБЖУ</h2>
+                    <span>за сегодня</span>
+                </div>
+
+                <div class="macro-list">
+                    <article class="macro-card">
+                        <div class="macro-row">
+                            <span>Белки</span>
+                            <strong><b id="protein-eaten">0</b> / <span id="protein-daily">0</span> г</strong>
+                        </div>
+                        <div class="progress-track">
+                            <div id="protein-progress" class="progress-fill"></div>
+                        </div>
+                    </article>
+
+                    <article class="macro-card">
+                        <div class="macro-row">
+                            <span>Жиры</span>
+                            <strong><b id="fat-eaten">0</b> / <span id="fat-daily">0</span> г</strong>
+                        </div>
+                        <div class="progress-track">
+                            <div id="fat-progress" class="progress-fill"></div>
+                        </div>
+                    </article>
+
+                    <article class="macro-card">
+                        <div class="macro-row">
+                            <span>Углеводы</span>
+                            <strong><b id="carbs-eaten">0</b> / <span id="carbs-daily">0</span> г</strong>
+                        </div>
+                        <div class="progress-track">
+                            <div id="carbs-progress" class="progress-fill"></div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section-block">
+                <div class="section-title">
+                    <h2>Сегодня съедено</h2>
+                    <span id="food-count">0 позиций</span>
+                </div>
+
+                <div id="food-list" class="food-list"></div>
+                <div id="food-empty" class="food-empty hidden">
+                    Пока ничего не добавлено
+                </div>
+            </section>
+
+            <section class="section-block">
+                <div class="section-title">
+                    <h2>Последние 7 дней</h2>
+                    <span>калории</span>
+                </div>
+
+                <article class="chart-card">
+                    <div id="weekly-chart" class="weekly-chart"></div>
+                </article>
+            </section>
+        </div>
+    </main>
+
+    <button id="add-food-button" class="add-food-button hidden" type="button">
+        <span>+</span> Добавить еду
+    </button>
+
+    <div id="sheet-backdrop" class="sheet-backdrop hidden"></div>
+
+    <section id="add-sheet" class="bottom-sheet hidden" aria-hidden="true">
+        <div class="sheet-handle"></div>
+
+        <div class="sheet-header">
+            <div>
+                <p id="sheet-eyebrow" class="sheet-eyebrow">Добавление еды</p>
+                <h2 id="sheet-title">Что добавим?</h2>
+            </div>
+            <button id="sheet-close" class="sheet-close" type="button" aria-label="Закрыть">×</button>
+        </div>
+
+        <div id="add-menu" class="sheet-screen">
+            <button id="saved-foods-button" class="add-option" type="button">
+                <span class="add-option-icon">⭐</span>
+                <span class="add-option-text">
+                    <strong>Сохранённые продукты</strong>
+                    <small>Быстро добавить то, что уже сохранял</small>
+                </span>
+                <span class="add-option-arrow">›</span>
+            </button>
+
+            <button class="add-option add-option-disabled" type="button" disabled>
+                <span class="add-option-icon">🔎</span>
+                <span class="add-option-text">
+                    <strong>Найти продукт</strong>
+                    <small>Скоро</small>
+                </span>
+            </button>
+
+            <button class="add-option add-option-disabled" type="button" disabled>
+                <span class="add-option-icon">⚡</span>
+                <span class="add-option-text">
+                    <strong>Быстрый подсчёт AI</strong>
+                    <small>Скоро</small>
+                </span>
+            </button>
+
+            <button class="add-option add-option-disabled" type="button" disabled>
+                <span class="add-option-icon">✏️</span>
+                <span class="add-option-text">
+                    <strong>Добавить вручную</strong>
+                    <small>Скоро</small>
+                </span>
+            </button>
+        </div>
+
+        <div id="saved-foods-screen" class="sheet-screen hidden">
+            <button id="saved-foods-back" class="sheet-back" type="button">← Назад</button>
+            <div id="saved-foods-list" class="saved-foods-list"></div>
+            <div id="saved-foods-empty" class="sheet-empty hidden">
+                У тебя пока нет сохранённых продуктов
+            </div>
+        </div>
+
+        <div id="weight-screen" class="sheet-screen hidden">
+            <button id="weight-back" class="sheet-back" type="button">← Назад</button>
+
+            <article class="selected-food-card">
+                <strong id="selected-food-name">Продукт</strong>
+                <span id="selected-food-base">0 ккал / 100 г</span>
+            </article>
+
+            <label class="weight-label" for="weight-input">Вес, г</label>
+            <input id="weight-input" class="weight-input" type="number" inputmode="decimal" min="1" step="1" value="100">
+
+            <div class="food-preview">
+                <div>
+                    <span>Калории</span>
+                    <strong id="preview-calories">0</strong>
+                </div>
+                <div>
+                    <span>Белки</span>
+                    <strong id="preview-protein">0 г</strong>
+                </div>
+                <div>
+                    <span>Жиры</span>
+                    <strong id="preview-fat">0 г</strong>
+                </div>
+                <div>
+                    <span>Углеводы</span>
+                    <strong id="preview-carbs">0 г</strong>
+                </div>
+            </div>
+
+            <button id="confirm-add-food" class="confirm-add-food" type="button">Добавить в дневник</button>
+        </div>
+    </section>
+</body>
+</html>
