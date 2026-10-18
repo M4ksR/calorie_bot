@@ -437,3 +437,54 @@ async def add_food_and_update_streak(user_id,
 
     await add_food_entry(user_id, food_name, weight, calories, protein, fat, carbs)
     await update_streak(user_id)
+
+async def get_user_streak(user_id):
+    async with aiosqlite.connect("calorie_bot.db") as db:
+        cursor = await db.execute(
+            """
+            SELECT streak 
+            FROM users 
+            WHERE user_id = ?
+            """,
+            (
+                user_id,
+            )
+        )
+        row = await cursor.fetchone()
+        return 0 if row is None else row[0]
+
+async def get_dashboard_data(user_id):
+    await ensure_user(user_id)
+    daily = await get_daily_calories(user_id)
+    eaten = await get_today_calories(user_id)
+    streak = await get_user_streak(user_id)
+    return {
+        "daily": {
+            "calories": daily[0],
+            "protein": daily[1],
+            "fat": daily[2],
+            "carbs": daily[3]
+        },
+        "eaten": {
+            "calories": eaten[0],
+            "protein": eaten[1],
+            "fat": eaten[2],
+            "carbs": eaten[3]
+        },
+        "left": {
+            "calories": daily[0] - eaten[0],
+            "protein": daily[1] - eaten[1],
+            "fat": daily[2] - eaten[2],
+            "carbs": daily[3] - eaten[3]
+        },
+        "streak": streak
+    }
+
+async def get_weekly_calories(user_id):
+    current_date = datetime.now(MOSCOW).date()
+    result = []
+    for days in range(-6, 1):
+        select_date = current_date + timedelta(days=days)
+        calories = await get_today_calories(user_id, select_date)
+        result.append({"date": select_date.isoformat(), "calories": calories[0]})
+    return result
