@@ -66,5 +66,12 @@ async def estimate_foods(foods):
                 text = (await response.json())["candidates"][0]["content"]["parts"][0]["text"]
                 return json.loads(text)
 
-    print("gemini API error")
-    return []
+            else:
+                print("gemini API error:", response.status)
+
+                try:
+                    print(await response.text())
+                except aiohttp.ClientConnectionError:
+                    print("Gemini closed connection")
+
+            return []
