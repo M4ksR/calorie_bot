@@ -55,17 +55,20 @@ def products_search_menu(products, page=0):
         builder.button(text=f"{products[i].get('name')} | {products[i].get('brand - ', "")}{products[i].get('calories'):.1f}ккал",
                        callback_data=f"product_select_{i}")
 
-    builder.button(text="↩️Назад", callback_data="cancel_add_food")
     builder.adjust(1)
 
     buttons = []
     if page != 0:
         buttons.append(InlineKeyboardButton(text="◀️пред",
                                             callback_data=f"product_page_{page-1}"))
+
+    buttons.append(InlineKeyboardButton(text=f"{page + 1}/{len(products)//5}",callback_data="None"))
+
     if end < len(products):
         buttons.append(InlineKeyboardButton(text="след▶️",
                                             callback_data=f"product_page_{page+1}"))
     builder.row(*buttons)
+    builder.row(InlineKeyboardButton(text="❌Отменить", callback_data="cancel_add_food"))
     return builder.as_markup()
 
 def saved_food_menu(data):
