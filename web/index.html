@@ -65,9 +65,7 @@
                             <span>Белки</span>
                             <strong><b id="protein-eaten">0</b> / <span id="protein-daily">0</span> г</strong>
                         </div>
-                        <div class="progress-track">
-                            <div id="protein-progress" class="progress-fill"></div>
-                        </div>
+                        <div class="progress-track"><div id="protein-progress" class="progress-fill"></div></div>
                     </article>
 
                     <article class="macro-card">
@@ -75,9 +73,7 @@
                             <span>Жиры</span>
                             <strong><b id="fat-eaten">0</b> / <span id="fat-daily">0</span> г</strong>
                         </div>
-                        <div class="progress-track">
-                            <div id="fat-progress" class="progress-fill"></div>
-                        </div>
+                        <div class="progress-track"><div id="fat-progress" class="progress-fill"></div></div>
                     </article>
 
                     <article class="macro-card">
@@ -85,9 +81,7 @@
                             <span>Углеводы</span>
                             <strong><b id="carbs-eaten">0</b> / <span id="carbs-daily">0</span> г</strong>
                         </div>
-                        <div class="progress-track">
-                            <div id="carbs-progress" class="progress-fill"></div>
-                        </div>
+                        <div class="progress-track"><div id="carbs-progress" class="progress-fill"></div></div>
                     </article>
                 </div>
             </section>
@@ -99,9 +93,7 @@
                 </div>
 
                 <div id="food-list" class="food-list"></div>
-                <div id="food-empty" class="food-empty hidden">
-                    Пока ничего не добавлено
-                </div>
+                <div id="food-empty" class="food-empty hidden">Пока ничего не добавлено</div>
             </section>
 
             <section class="section-block">
@@ -144,37 +136,52 @@
                 <span class="add-option-arrow">›</span>
             </button>
 
-            <button class="add-option add-option-disabled" type="button" disabled>
+            <button id="search-food-button" class="add-option" type="button">
                 <span class="add-option-icon">🔎</span>
                 <span class="add-option-text">
                     <strong>Найти продукт</strong>
-                    <small>Скоро</small>
+                    <small>Магнит, Лента, USDA и Perek</small>
                 </span>
+                <span class="add-option-arrow">›</span>
             </button>
 
-            <button class="add-option add-option-disabled" type="button" disabled>
+            <button id="ai-food-button" class="add-option" type="button">
                 <span class="add-option-icon">⚡</span>
                 <span class="add-option-text">
                     <strong>Быстрый подсчёт AI</strong>
-                    <small>Скоро</small>
+                    <small>Несколько продуктов одной строкой</small>
                 </span>
+                <span class="add-option-arrow">›</span>
             </button>
 
-            <button class="add-option add-option-disabled" type="button" disabled>
+            <button id="manual-food-button" class="add-option" type="button">
                 <span class="add-option-icon">✏️</span>
                 <span class="add-option-text">
                     <strong>Добавить вручную</strong>
-                    <small>Скоро</small>
+                    <small>Название, вес и КБЖУ на 100 г</small>
                 </span>
+                <span class="add-option-arrow">›</span>
             </button>
         </div>
 
         <div id="saved-foods-screen" class="sheet-screen hidden">
-            <button id="saved-foods-back" class="sheet-back" type="button">← Назад</button>
+            <button class="sheet-back" type="button" data-back-menu>← Назад</button>
             <div id="saved-foods-list" class="saved-foods-list"></div>
-            <div id="saved-foods-empty" class="sheet-empty hidden">
-                У тебя пока нет сохранённых продуктов
+            <div id="saved-foods-empty" class="sheet-empty hidden">У тебя пока нет сохранённых продуктов</div>
+        </div>
+
+        <div id="search-screen" class="sheet-screen hidden">
+            <button class="sheet-back" type="button" data-back-menu>← Назад</button>
+
+            <div class="search-box">
+                <input id="search-input" class="text-input" type="search" placeholder="Например: творог 5%">
+                <button id="search-submit" class="compact-button" type="button">Найти</button>
             </div>
+
+            <div id="search-info" class="search-info hidden"></div>
+            <div id="search-results" class="search-results"></div>
+            <div id="search-empty" class="sheet-empty hidden">Ничего не найдено</div>
+            <button id="search-more" class="secondary-button hidden" type="button">Показать ещё</button>
         </div>
 
         <div id="weight-screen" class="sheet-screen hidden">
@@ -185,29 +192,48 @@
                 <span id="selected-food-base">0 ккал / 100 г</span>
             </article>
 
-            <label class="weight-label" for="weight-input">Вес, г</label>
-            <input id="weight-input" class="weight-input" type="number" inputmode="decimal" min="1" step="1" value="100">
+            <label class="field-label" for="weight-input">Вес / объём</label>
+            <input id="weight-input" class="text-input" type="number" inputmode="decimal" min="1" step="1" value="100">
 
             <div class="food-preview">
-                <div>
-                    <span>Калории</span>
-                    <strong id="preview-calories">0</strong>
-                </div>
-                <div>
-                    <span>Белки</span>
-                    <strong id="preview-protein">0 г</strong>
-                </div>
-                <div>
-                    <span>Жиры</span>
-                    <strong id="preview-fat">0 г</strong>
-                </div>
-                <div>
-                    <span>Углеводы</span>
-                    <strong id="preview-carbs">0 г</strong>
-                </div>
+                <div><span>Калории</span><strong id="preview-calories">0</strong></div>
+                <div><span>Белки</span><strong id="preview-protein">0 г</strong></div>
+                <div><span>Жиры</span><strong id="preview-fat">0 г</strong></div>
+                <div><span>Углеводы</span><strong id="preview-carbs">0 г</strong></div>
             </div>
 
-            <button id="confirm-add-food" class="confirm-add-food" type="button">Добавить в дневник</button>
+            <button id="confirm-add-food" class="primary-button" type="button">Добавить в дневник</button>
+        </div>
+
+        <div id="ai-screen" class="sheet-screen hidden">
+            <button class="sheet-back" type="button" data-back-menu>← Назад</button>
+
+            <p class="form-hint">Каждый продукт с новой строки: <b>название - вес</b></p>
+            <textarea id="ai-input" class="textarea-input" rows="6" placeholder="Оливье - 250\nБанан - 120\nКапучино - 300"></textarea>
+            <button id="ai-estimate" class="primary-button" type="button">Рассчитать</button>
+
+            <div id="ai-results" class="ai-results hidden"></div>
+            <button id="ai-add" class="primary-button hidden" type="button">Добавить всё в дневник</button>
+        </div>
+
+        <div id="manual-screen" class="sheet-screen hidden">
+            <button class="sheet-back" type="button" data-back-menu>← Назад</button>
+
+            <label class="field-label" for="manual-name">Название</label>
+            <input id="manual-name" class="text-input" type="text" placeholder="Например: Домашняя паста">
+
+            <label class="field-label" for="manual-weight">Вес, г</label>
+            <input id="manual-weight" class="text-input" type="number" inputmode="decimal" min="1" placeholder="250">
+
+            <p class="form-hint form-hint-spaced">КБЖУ на 100 г</p>
+            <div class="macro-input-grid">
+                <input id="manual-calories" class="text-input" type="number" inputmode="decimal" min="0" placeholder="Ккал">
+                <input id="manual-protein" class="text-input" type="number" inputmode="decimal" min="0" placeholder="Белки">
+                <input id="manual-fat" class="text-input" type="number" inputmode="decimal" min="0" placeholder="Жиры">
+                <input id="manual-carbs" class="text-input" type="number" inputmode="decimal" min="0" placeholder="Углеводы">
+            </div>
+
+            <button id="manual-add" class="primary-button" type="button">Добавить в дневник</button>
         </div>
     </section>
 </body>
