@@ -4,3 +4,4 @@ aiosqlite
 tzdata
 aiohttp
 fastapi
+uvicorn
