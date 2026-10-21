@@ -46,27 +46,38 @@ def confirm_search_food():
 
     return builder.as_markup()
 
-def products_search_menu(products, page=0):
-    start = page * 5
-    end = min(start + 5, len(products))
+def products_search_menu(products, page=0, total=None):
+    if total is None: total = len(products)
+
+    page_size = 5
+    total_pages = max(1, (total + page_size - 1) // page_size)
 
     builder = InlineKeyboardBuilder()
-    for i in range(start, end):
-        builder.button(text=f"{products[i].get('name')} | {products[i].get('brand - ', "")}{products[i].get('calories'):.1f}ккал",
-                       callback_data=f"product_select_{i}")
+    for i, product in enumerate(products):
+        source_names = {
+            "magnit": "🟢",
+            "lenta": "🟡",
+            "usda": "🔴",
+            "perek": "🌐"
+        }
 
+        source = source_names.get(product.get("source"), "")
+        brand = product.get("brand")
+        brand_text = f"{brand} | " if brand else ""
+        builder.button(text=f"{source} {product['name']} | {brand_text}{product['calories']:.1f}ккал",
+                       callback_data=f"product_select_{i}"
+        )
     builder.adjust(1)
 
     buttons = []
-    if page != 0:
-        buttons.append(InlineKeyboardButton(text="◀️пред",
-                                            callback_data=f"product_page_{page-1}"))
+    if page > 0:
+        buttons.append(InlineKeyboardButton(text="◀️пред", callback_data=f"product_page_{page - 1}"))
 
-    buttons.append(InlineKeyboardButton(text=f"{page + 1}/{len(products)//5}",callback_data="None"))
+    buttons.append(InlineKeyboardButton(text=f"{page + 1}/{total_pages}", callback_data="None"))
 
-    if end < len(products):
-        buttons.append(InlineKeyboardButton(text="след▶️",
-                                            callback_data=f"product_page_{page+1}"))
+    if page + 1 < total_pages:
+        buttons.append(InlineKeyboardButton(text="след▶️", callback_data=f"product_page_{page + 1}"))
+
     builder.row(*buttons)
     builder.row(InlineKeyboardButton(text="❌Отменить", callback_data="cancel_add_food"))
     return builder.as_markup()

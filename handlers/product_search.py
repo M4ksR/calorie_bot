@@ -11,13 +11,32 @@ from keyboards import (add_food_menu,
                        cancel_add_food,
                        go_to_start_menu)
 
-from database import add_food_and_update_streak, search_basic_foods
+from database import add_food_and_update_streak, search_products
 
 router = Router()
 
-async def search_all_products(food_name):
-    products = await search_basic_foods(food_name)
-    return products if products else await search_perek(food_name, 5)
+async def search_all_products(food_name, state):
+    page = 0
+    page_size = 5
+
+    products, total = await search_products(food_name, page, page_size)
+    if total:
+        await state.update_data(
+            food_name=food_name,
+            page=page,
+            total=total,
+            source="local"
+        )
+        return products
+
+    products = await search_perek(food_name, 5)
+    await state.update_data(
+        food_name=food_name,
+        page=0,
+        total=len(products),
+        source="perek"
+    )
+    return products
 
 @router.callback_query(F.data == "find_food")
 async def find_food_callback_handler(callback: CallbackQuery, state: FSMContext) -> None:
@@ -27,14 +46,17 @@ async def find_food_callback_handler(callback: CallbackQuery, state: FSMContext)
 
 @router.message(ProductSearch.waiting_for_product, F.text)
 async def waiting_for_product_handler(message: Message, state: FSMContext) -> None:
-    products = await search_all_products(message.text)
+    products = await search_all_products(message.text, state)
+    data = await state.get_data()
 
     if not products:
         await state.clear()
         await message.answer("Ничего не найдено", reply_markup=add_food_menu())
     else:
         await state.update_data(products=products)
-        await message.answer("Найденные совпадения:", reply_markup=products_search_menu(products))
+        await message.answer("Найденные совпадения:", reply_markup=products_search_menu(products,
+                                                                                        page=data.get("page", 0),
+                                                                                        total=data.get("total", len(products))))
 
 @router.callback_query(ProductSearch.waiting_for_product, F.data.startswith("product_select_"))
 async def selected_product_handler(callback: CallbackQuery, state: FSMContext) -> None:
@@ -55,9 +77,13 @@ async def selected_product_handler(callback: CallbackQuery, state: FSMContext) -
 async def selected_page_handler(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
     data = await state.get_data()
-    products = data.get("products", [])
     page = int(callback.data.split('_')[-1])
-    await callback.message.edit_reply_markup(reply_markup=products_search_menu(products,page=page))
+    food_name = data["food_name"]
+    source = data["source"]
+    if source == "local":
+        products, total = await search_products(food_name, page, 5)
+        await state.update_data(products=products, page=page, total=total)
+        await callback.message.edit_reply_markup(reply_markup=products_search_menu(products, page=page, total=total))
 
 @router.message(ProductSearch.waiting_for_weight, F.text)
 async def waiting_for_weight_handler(message: Message, state: FSMContext) -> None:
@@ -116,3 +142,7 @@ async def cancel_search_product_handler(callback: CallbackQuery, state: FSMConte
     await callback.answer()
     await state.clear()
     await callback.message.edit_text("Добавление еды:", reply_markup=add_food_menu())
+
+@router.callback_query(ProductSearch.waiting_for_product, F.data == "None")
+async def ignore_page_callback(callback: CallbackQuery) -> None:
+    await callback.answer()

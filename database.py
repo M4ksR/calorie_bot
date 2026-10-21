@@ -1,4 +1,6 @@
 import aiosqlite
+import re
+import unicodedata
 
 from datetime import datetime, time, timedelta, timezone
 from zoneinfo import ZoneInfo
@@ -310,56 +312,187 @@ async def delete_old_food_entries(cutoff_datetime):
         )
         await db.commit()
 
-def normalize_search_words(query):
-    return query.casefold().replace(',', ' ').split()
+SEARCH_ALIASES = {
+    "курица": ["курица", "курин", "цыплен", "цыплят", "бройлер"],
+    "творог": ["творог", "творож"],
+    "говядина": ["говядин", "говяж"],
+    "свинина": ["свинин", "свин"],
+    "индейка": ["индейк", "индюш"]
+}
 
-def product_score(product_name, query):
-    product_name = product_name.casefold()
-    products_words = normalize_search_words(product_name)
-    full_query = " ".join(query)
-    if products_words == query: return 0
-    if products_words[:len(query)] == query: return 1
-    if full_query in product_name: return 2
-    if all(word in products_words for word in query): return 3
-    return 4
+PREPARED_FOOD_WORDS = [
+    "соус",
+    "лапш",
+    "рис",
+    "греч",
+    "наггет",
+    "котлет",
+    "тефтел",
+    "пюре",
+    "грил",
+    "шашлы",
+    "попкорн",
+    "олад",
+    "ролл",
+    "салат",
+    "суп",
+    "паштет",
+    "пельмен",
+    "сэндвич",
+    "бургер",
+    "хот дог",
+    "маринад",
+    "паниров",
+    "терияки",
+    "тушен",
+    "варен",
+    "жарен",
+    "запеч",
+    "копчен",
+    "сгущ",
+    "быстрозаморож",
+    "стритс",
+    "люля",
+    "рулет",
+    "ветчин",
+    "фрикадел",
+    "шницел",
+    "зраз",
+    "сосиск",
+    "сардел",
+    "колбас",
+    "яйц",
+    "бульон",
+    "онигири",
+    "чиабат",
+    "кордон",
+    "криспи",
+    "гриб",
+    "картоф",
+    "бекон",
+    "начинк",
+    "спагет",
+    "овощ",
+    "рап"
+]
 
-async def search_basic_foods(food_name, limit=20):
-    async with aiosqlite.connect("data/basic_foods.db") as db:
-        words = normalize_search_words(food_name)
-        if not words: return []
+def normalize_product_search(query):
+    query = unicodedata.normalize("NFKC", query)
+    query = query.casefold().replace("ё", "е")
+    query = re.sub(r"(?<=\d),(?=\d)", ".", query)
+    query = query.replace("%", "")
+    query = re.sub(r"[^0-9a-zа-я.+]+", " ", query)
+    query = re.sub(r"\s+", " ", query).strip()
+    return query
 
-        params = tuple(f"%{word}%" for word in words)
-        conditions = " AND ".join(["name_normalized LIKE ?"] * len(words))
+def build_fts_query(query):
+    words = normalize_product_search(query).split()
+    if not words: return None
 
+    result = []
+    for word in words:
+        variants = SEARCH_ALIASES.get(word, [word])
+        if len(variants) == 1:
+            result.append(f'"{word}"*')
+        else:
+            variants_query = " OR ".join(f'"{variant}"*' for variant in variants)
+            result.append(f"({variants_query})")
+
+    return " AND ".join(result)
+
+def product_search_score(product, food_name):
+    name = normalize_product_search(product["name"])
+    query = normalize_product_search(food_name)
+
+    name_words = name.split()
+    query_words = query.split()
+
+    prepared_penalty = 0
+    for prepared_word in PREPARED_FOOD_WORDS:
+        if prepared_word in name and prepared_word not in query:
+            prepared_penalty += 1
+
+    if len(query_words) == 1:
+        full_name = f" {name} "
+        if " с " in full_name or " в " in full_name or " под " in full_name:
+            prepared_penalty += 1
+
+    if name == query:
+        match_priority = 0
+    elif name.startswith(query):
+        match_priority = 1
+    elif query in name:
+        match_priority = 2
+    else:
+        match_priority = 3
+
+    source_priority = {
+        "magnit": 1,
+        "lenta": 2,
+        "usda": 3
+    }.get(product["source"], 4)
+
+    if len(query_words) == 1:
+        return prepared_penalty, source_priority, match_priority, len(name_words), len(name)
+
+    return match_priority, prepared_penalty, source_priority, len(name_words), len(name)
+
+async def search_products(food_name, page=0, page_size=5):
+    fts_query = build_fts_query(food_name)
+    if not fts_query: return [], 0
+
+    async with aiosqlite.connect("data/products.db") as db:
         cursor = await db.execute(
-            f"""
-                SELECT name_ru, calories, protein, fat, carbs 
-                FROM basic_foods
-                WHERE {conditions}
+            """
+            SELECT p.id,
+                   p.source,
+                   p.source_id,
+                   p.name,
+                   p.brand,
+                   p.calories,
+                   p.protein,
+                   p.fat,
+                   p.carbs,
+                   p.weight,
+                   p.weight_unit,
+                   p.url,
+                   p.image_url
+            FROM products_fts JOIN products p
+            ON p.id = products_fts.rowid
+            WHERE products_fts MATCH ?
             """,
-            params
+            (
+                fts_query,
+            )
         )
 
-        result = []
         rows = await cursor.fetchall()
-
-        rows.sort(key=lambda row: (product_score(row[0], words), len(row[0])))
-        rows = rows[:limit]
-
+        result = []
         for row in rows:
-            food = {
-                "name": row[0],
-                "brand": None,
-                "calories": row[1],
-                "protein": row[2],
-                "fat": row[3],
-                "carbs": row[4],
-                "source": "local",
-                "url": None
+            product = {
+                "id": row[0],
+                "source": row[1],
+                "source_id": row[2],
+                "name": row[3],
+                "brand": row[4],
+                "calories": row[5],
+                "protein": row[6],
+                "fat": row[7],
+                "carbs": row[8],
+                "weight": row[9],
+                "weight_unit": row[10],
+                "url": row[11],
+                "image_url": row[12]
             }
-            result.append(food)
+            result.append(product)
 
-        return result
+    result.sort(key=lambda product: product_search_score(product, food_name))
+
+    total = len(result)
+    start = page * page_size
+    end = start + page_size
+
+    return result[start:end], total
 
 async def ensure_user(user_id):
     async with aiosqlite.connect("calorie_bot.db") as db:
